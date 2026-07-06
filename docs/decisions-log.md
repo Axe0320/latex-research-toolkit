@@ -59,3 +59,11 @@ D専用だったOCRパイプラインをTable・Citationにも展開可能な共
 
 - **Vercelデプロイのタイミング**：早期にpreviewデプロイして`vercel.json`（Python Functions混在設定）を検証しておく案を提示したが、ユーザーは計画通りPhase 8（全Phase完了後の一括デプロイ）を選択。
 - **Sentryプロジェクトの分離（ユーザー提案・採用）**：実装タイミングはPhase 4のままでよいが、Sentry側の管理単位（プロジェクト）はDが元々使っていたものを流用せず、統合アプリ用に新規作成することに決定。旧4デプロイ（Dの単体デプロイ含む）がそのまま生き続ける方針のため、同一Sentryプロジェクトを共有するとエラーの発生元（統合アプリ vs 旧D単体）が混同されてしまうのが理由。詳細：[03-tech-alignment.md](03-tech-alignment.md)、[phases/phase-4-chart.md](phases/phase-4-chart.md)、[phases/phase-8-deploy.md](phases/phase-8-deploy.md)。
+
+### 2026-07-06 — xlsx依存の脆弱性対応（npmレジストリ版→SheetJS公式CDN版に切替）
+
+Phase 3実装中の`npm install`で、Phase 2で追加した`xlsx@0.18.5`（npmレジストリ版）にhigh重度の脆弱性2件（Prototype Pollution: GHSA-4r6h-8v6p-xvw6、ReDoS: GHSA-5pgg-2g8v-p4x9）があることが`npm audit`で判明。WebSearchで調査した結果、SheetJSはnpmレジストリへの修正版配布を停止しており、自社CDN（`https://cdn.sheetjs.com/`）でのみ修正版（Prototype Pollutionは0.19.3で、ReDoSは0.20.2で解決済み）を配布していることを確認。ユーザーへ「リスク受容のまま進める」か「CDN版に切り替える」かを確認したところ、ユーザーは詳細調査のうえでの提案を希望。調査結果を提示し、最終提出物として脆弱性を実際に解消する方が望ましいと判断し、`npm i --save https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz`で最新版（両脆弱性修正済み）に切替。APIは同一のためコード変更不要、ビルド・Vitest・Playwright動作確認とも問題なし、`npm audit`は0件に。詳細：[phases/phase-3-figure-convert.md](phases/phase-3-figure-convert.md)実施メモ。
+
+### 2026-07-06 — Figure Converterのクリップボードバス受信側実装をPhase 5へ先送り
+
+Phase 3のスコープには当初「クリップボードバスの受信側実装」が含まれていたが、送信側であるChartモジュール自体がPhase 4未着手で存在せず、実機で検証する手段がないため実装を見送った。`shared/clipboard`自体もPhase 5のスコープとして計画されており、送受信を一体で設計・実装する方が手戻りが少ないと判断。Table移植時の`shared/lib/dataParsing`（Chart側の実統合をPhase 5に残した）と同じ考え方。詳細：[phases/phase-3-figure-convert.md](phases/phase-3-figure-convert.md)。
