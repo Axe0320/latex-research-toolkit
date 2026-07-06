@@ -20,6 +20,8 @@ sys.path.insert(0, API_DIR)
 os.chdir(API_DIR)
 
 import render, compose, stat_test, ocr  # noqa: E402
+import importlib
+resolve_citation = importlib.import_module('resolve-citation')
 
 # Route -> (handler class, port). One HTTPServer per handler — matches how
 # Vercel runs each api/*.py as its own isolated function.
@@ -28,6 +30,7 @@ ROUTES = {
     'compose': (compose.handler, 8802),
     'stat_test': (stat_test.handler, 8803),
     'ocr': (ocr.handler, 8804),
+    'resolve-citation': (resolve_citation.handler, 8805),
 }
 
 if __name__ == '__main__':
