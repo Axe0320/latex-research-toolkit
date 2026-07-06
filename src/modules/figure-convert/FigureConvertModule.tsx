@@ -1,5 +1,5 @@
 import './figure-convert.css'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Header } from './components/Header'
 import { FileUploader } from './components/FileUploader'
 import { FileList } from './components/FileList'
@@ -9,6 +9,7 @@ import { BatchResult } from './components/BatchResult'
 import { ErrorArea } from './components/ErrorArea'
 import { useConversion } from './hooks/useConversion'
 import type { OutputFormat } from './types/conversion'
+import { useClipboard } from '../../shared/clipboard'
 
 export default function FigureConvertModule() {
   const {
@@ -23,6 +24,20 @@ export default function FigureConvertModule() {
     doneItems,
     canConvert,
   } = useConversion()
+
+  // Receiving side of the Chart → Figure Converter clipboard bus
+  // (docs/02-integrations.md 連携#1): pick up a figure the moment it's sent,
+  // whether this module was already mounted or just switched into for the
+  // first time.
+  const { item: clipboardItem, consume } = useClipboard()
+  useEffect(() => {
+    if (clipboardItem?.type !== 'figure') return
+    consume().then((consumed) => {
+      if (consumed?.type !== 'figure') return
+      const file = new File([consumed.blob], `chart-figure.${consumed.format}`, { type: consumed.blob.type })
+      addFiles([file])
+    })
+  }, [clipboardItem, consume, addFiles])
 
   const { items, outputFormat, globalError } = state
 

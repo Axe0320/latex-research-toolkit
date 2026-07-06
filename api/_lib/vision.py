@@ -64,6 +64,15 @@ SCHEMAS: dict[str, dict] = {
         'labels': ['A', 'B', 'C'],
         'values': [30.0, 50.0, 20.0],
     },
+    # Table module (docs/02-integrations.md §3.3): printed/screenshotted table → cells
+    'table_data': {
+        'columns': ['Column A', 'Column B'],
+        'rows': [['1', '2'], ['3', '4']],
+    },
+    # Citation module (docs/02-integrations.md §3.3): reference list photo → citation strings
+    'citation_list': {
+        'citations': ['Author, A. (2024). Title. Journal.'],
+    },
 }
 
 FIGURE_TYPE_JA: dict[str, str] = {
@@ -83,6 +92,8 @@ FIGURE_TYPE_JA: dict[str, str] = {
     'stacked_bar': '積み上げ棒グラフ',
     'combo_chart': '棒+折れ線複合グラフ',
     'pie_chart': '円グラフ',
+    'table_data': '表',
+    'citation_list': '参考文献リスト',
 }
 
 

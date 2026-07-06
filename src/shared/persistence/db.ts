@@ -16,8 +16,8 @@ export function getDB(): Promise<IDBPDatabase> {
         if (!db.objectStoreNames.contains('figures'))  db.createObjectStore('figures', { keyPath: 'id' })
         if (!db.objectStoreNames.contains('layout'))   db.createObjectStore('layout')
         if (!db.objectStoreNames.contains('previews')) db.createObjectStore('previews')
-        // Add remaining stores here as each module migrates onto this shared
-        // DB: citationLibrary, clipboard (Phase 5).
+        if (!db.objectStoreNames.contains('citationLibrary')) db.createObjectStore('citationLibrary')
+        if (!db.objectStoreNames.contains('clipboard')) db.createObjectStore('clipboard')
       },
     })
   }

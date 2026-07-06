@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import type { OcrProvider } from '../../hooks/useOcr'
+import type { OcrProvider } from './useOcr'
 
 interface Props {
   onClose: () => void

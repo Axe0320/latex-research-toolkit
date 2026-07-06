@@ -8,6 +8,7 @@ interface Props {
   downloadLoading?: boolean
   onFormatChange: (f: OutputFormat) => void
   onDownload: () => void
+  onSendToFigureConverter?: () => void
 }
 
 const FORMATS: { val: OutputFormat; label: string }[] = [
@@ -17,7 +18,7 @@ const FORMATS: { val: OutputFormat; label: string }[] = [
   { val: 'eps', label: 'EPS' },
 ]
 
-export default function FigurePreview({ b64, loading, error, format, downloadLoading, onFormatChange, onDownload }: Props) {
+export default function FigurePreview({ b64, loading, error, format, downloadLoading, onFormatChange, onDownload, onSendToFigureConverter }: Props) {
   const disabled = !b64 || loading || downloadLoading
 
   return (
@@ -85,6 +86,24 @@ export default function FigurePreview({ b64, loading, error, format, downloadLoa
       >
         {downloadLoading ? '変換中...' : `${format.toUpperCase()} をダウンロード`}
       </button>
+
+      {onSendToFigureConverter && (
+        <button
+          onClick={onSendToFigureConverter}
+          disabled={!b64 || loading}
+          title="現在のPNGプレビューをFigureタブの変換キューに送る"
+          className="mt-2 w-full py-2 px-4 text-sm font-semibold transition-all"
+          style={{
+            background: 'white',
+            color: !b64 || loading ? '#D1D5DB' : '#6C63FF',
+            border: `1.5px solid ${!b64 || loading ? '#E5E7EB' : '#6C63FF'}`,
+            borderRadius: 14,
+            cursor: !b64 || loading ? 'not-allowed' : 'pointer',
+          }}
+        >
+          🖼️ Figure Converterへ送る
+        </button>
+      )}
     </div>
   )
 }

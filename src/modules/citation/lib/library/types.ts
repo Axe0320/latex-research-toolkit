@@ -4,5 +4,3 @@ export interface LibraryEntry {
   raw: string
   addedAt: number
 }
-
-export type SaveResult = 'ok' | 'warn' | 'full'

@@ -491,23 +491,6 @@ textarea[readonly]:focus { box-shadow: 0 0 0 3px rgba(108,99,255,.08); }
 }
 .field-item input[type="checkbox"]:checked + span { color: var(--text); font-weight: 500; }
 
-/* ── Toast ───────────────────────────────────────── */
-
-.toast {
-  position: fixed; bottom: 2rem; right: 2rem;
-  display: flex; align-items: center; gap: .5rem;
-  padding: .75rem 1.125rem;
-  background: #111827; color: #fff;
-  border-radius: var(--rs);
-  font-size: .875rem; font-weight: 500;
-  box-shadow: var(--shadow-lg);
-  opacity: 0; transform: translateY(.75rem);
-  transition: opacity .2s, transform .2s;
-  pointer-events: none; z-index: 100;
-}
-.toast.visible { opacity: 1; transform: translateY(0); }
-.toast-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
-
 /* ── Add-to-Library button ───────────────────────── */
 
 .add-lib-btn {
@@ -760,6 +743,5 @@ textarea[readonly]:focus { box-shadow: 0 0 0 3px rgba(108,99,255,.08); }
   textarea { min-height: 150px; font-size: .82rem; }
   .convert-btn { font-size: .9rem; }
   .field-grid { grid-template-columns: repeat(2, 1fr); }
-  .toast { bottom: 1rem; right: 1rem; left: 1rem; justify-content: center; }
   .action-row { flex-wrap: wrap; }
 }

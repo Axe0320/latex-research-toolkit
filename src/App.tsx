@@ -1,6 +1,7 @@
-import { Suspense, lazy, useEffect, useState } from 'react'
-import { Header, TabBar, type TabDef } from './shared/ui'
+import { Suspense, lazy, useCallback, useEffect, useState } from 'react'
+import { Header, TabBar, Toast, useToast, type TabDef } from './shared/ui'
 import { APP_NAME } from './shared/theme'
+import { onTabRequest } from './shared/navigation'
 
 const CitationModule = lazy(() => import('./modules/citation/CitationModule'))
 const TableModule = lazy(() => import('./modules/table/TableModule'))
@@ -50,10 +51,42 @@ export default function App() {
     if (window.location.pathname !== path) window.history.pushState(null, '', path)
   }
 
+  // Lets a module (e.g. Chart's "Send to Figure Converter") switch tabs
+  // without a prop-drilled reference to this component's own state.
+  useEffect(() => onTabRequest(handleTabChange), [])
+
+  const { message: toastMsg, visible: toastVisible, show: showToast } = useToast()
+  const [exporting, setExporting] = useState(false)
+
+  const handleExportPaperAssets = useCallback(async () => {
+    setExporting(true)
+    try {
+      // Dynamic import: keeps jszip + Table's LaTeX generator out of the
+      // initial bundle, only loading them when this button is actually used.
+      const { exportPaperAssets } = await import('./exportPaperAssets')
+      const { fileCount } = await exportPaperAssets()
+      showToast(fileCount > 0 ? 'paper-assets.zip をダウンロードしました' : 'エクスポートする内容がありません')
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'エクスポートに失敗しました')
+    } finally {
+      setExporting(false)
+    }
+  }, [showToast])
+
   return (
     <div className="min-h-screen flex flex-col items-center pb-16">
       <Header title={APP_NAME} subtitle="Citation・Table・Figure・Chart を1つに統合した論文執筆支援ツール" />
-      <TabBar tabs={TABS} active={activeTab} onChange={handleTabChange} />
+      <div className="flex items-center gap-3">
+        <TabBar tabs={TABS} active={activeTab} onChange={handleTabChange} />
+        <button
+          onClick={handleExportPaperAssets}
+          disabled={exporting}
+          title="Citation Library・Tableの表・Chartの図をまとめてZIPでダウンロード"
+          className="text-sm font-semibold px-4 py-1.5 rounded-lg border border-[#E5E7EB] bg-white text-[#6B7280] hover:text-accent hover:border-accent disabled:opacity-50 transition-colors"
+        >
+          {exporting ? '書き出し中...' : '📦 Export Paper Assets'}
+        </button>
+      </div>
 
       <main className="w-full">
         <Suspense fallback={<div className="text-center text-sm text-[#6B7280] py-16">読み込み中...</div>}>
@@ -79,6 +112,8 @@ export default function App() {
           )}
         </Suspense>
       </main>
+
+      <Toast message={toastMsg} visible={toastVisible} />
     </div>
   )
 }
