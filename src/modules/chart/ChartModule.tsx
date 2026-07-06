@@ -562,7 +562,7 @@ export default function ChartModule() {
   }, [selectedFigure, updateFigure])
 
   // ----------------------------------------------------- generic param handler factory
-  const makeParamsHandler = <T,>(type: FigureType) =>
+  const useParamsHandler = <T,>(type: FigureType) =>
     useCallback((patch: Partial<T>) => {
       if (!selectedFigure || selectedFigure.type !== type) return
       updateFigure(selectedFigure.id, (f) => ({
@@ -570,22 +570,22 @@ export default function ChartModule() {
       } as unknown as FigureState))
     }, [selectedFigure, updateFigure])
 
-  const handleCMParamsChange       = makeParamsHandler<ConfusionMatrixParams>('confusion_matrix')
-  const handleHMParamsChange       = makeParamsHandler<HeatmapParams>('heatmap')
-  const handleBarParamsChange      = makeParamsHandler<BarChartParams>('bar_chart')
-  const handleLineParamsChange     = makeParamsHandler<LinePlotParams>('line_plot')
-  const handleScatterParamsChange  = makeParamsHandler<ScatterParams>('scatter_plot')
-  const handleHistParamsChange     = makeParamsHandler<HistogramParams>('histogram')
-  const handleRocParamsChange      = makeParamsHandler<RocParams>('roc_curve')
-  const handlePrParamsChange       = makeParamsHandler<PrParams>('pr_curve')
-  const handleLearningParamsChange = makeParamsHandler<LearningParams>('learning_curve')
-  const handleFeatureParamsChange  = makeParamsHandler<FeatureParams>('feature_importance')
-  const handleBoxParamsChange      = makeParamsHandler<BoxParams>('box_plot')
-  const handleViolinParamsChange   = makeParamsHandler<ViolinParams>('violin_plot')
-  const handleErrorBarParamsChange  = makeParamsHandler<ErrorBarParams>('error_bar')
-  const handleStackedBarParamsChange = makeParamsHandler<StackedBarParams>('stacked_bar')
-  const handleComboParamsChange      = makeParamsHandler<ComboParams>('combo_chart')
-  const handlePieParamsChange        = makeParamsHandler<PieParams>('pie_chart')
+  const handleCMParamsChange       = useParamsHandler<ConfusionMatrixParams>('confusion_matrix')
+  const handleHMParamsChange       = useParamsHandler<HeatmapParams>('heatmap')
+  const handleBarParamsChange      = useParamsHandler<BarChartParams>('bar_chart')
+  const handleLineParamsChange     = useParamsHandler<LinePlotParams>('line_plot')
+  const handleScatterParamsChange  = useParamsHandler<ScatterParams>('scatter_plot')
+  const handleHistParamsChange     = useParamsHandler<HistogramParams>('histogram')
+  const handleRocParamsChange      = useParamsHandler<RocParams>('roc_curve')
+  const handlePrParamsChange       = useParamsHandler<PrParams>('pr_curve')
+  const handleLearningParamsChange = useParamsHandler<LearningParams>('learning_curve')
+  const handleFeatureParamsChange  = useParamsHandler<FeatureParams>('feature_importance')
+  const handleBoxParamsChange      = useParamsHandler<BoxParams>('box_plot')
+  const handleViolinParamsChange   = useParamsHandler<ViolinParams>('violin_plot')
+  const handleErrorBarParamsChange  = useParamsHandler<ErrorBarParams>('error_bar')
+  const handleStackedBarParamsChange = useParamsHandler<StackedBarParams>('stacked_bar')
+  const handleComboParamsChange      = useParamsHandler<ComboParams>('combo_chart')
+  const handlePieParamsChange        = useParamsHandler<PieParams>('pie_chart')
 
   // ----------------------------------------------------- data handlers
   const handleCMDataChange = useCallback((data: number[][]) => {
@@ -719,28 +719,28 @@ export default function ChartModule() {
   }, [selectedFigure, updateFigure])
 
   // ----------------------------------------------------- reset handlers
-  const makeReset = (def: FigureState) =>
+  const useReset = (def: FigureState) =>
     useCallback(() => {
       if (!selectedFigure) return
       updateFigure(selectedFigure.id, (f) => ({ ...f, params: def.params } as unknown as FigureState))
     }, [selectedFigure, updateFigure])
 
-  const handleCMReset       = makeReset(DEFAULT_CM)
-  const handleHMReset       = makeReset(DEFAULT_HEATMAP)
-  const handleBarReset      = makeReset(DEFAULT_BAR)
-  const handleLineReset     = makeReset(DEFAULT_LINE)
-  const handleScatterReset  = makeReset(DEFAULT_SCATTER)
-  const handleHistReset     = makeReset(DEFAULT_HISTOGRAM)
-  const handleRocReset      = makeReset(DEFAULT_ROC)
-  const handlePrReset       = makeReset(DEFAULT_PR)
-  const handleLearningReset = makeReset(DEFAULT_LEARNING)
-  const handleFeatureReset  = makeReset(DEFAULT_FEATURE)
-  const handleBoxReset      = makeReset(DEFAULT_BOX)
-  const handleViolinReset   = makeReset(DEFAULT_VIOLIN)
-  const handleErrorBarReset    = makeReset(DEFAULT_ERRORBAR)
-  const handleStackedBarReset  = makeReset(DEFAULT_STACKED_BAR)
-  const handleComboReset       = makeReset(DEFAULT_COMBO)
-  const handlePieReset         = makeReset(DEFAULT_PIE)
+  const handleCMReset       = useReset(DEFAULT_CM)
+  const handleHMReset       = useReset(DEFAULT_HEATMAP)
+  const handleBarReset      = useReset(DEFAULT_BAR)
+  const handleLineReset     = useReset(DEFAULT_LINE)
+  const handleScatterReset  = useReset(DEFAULT_SCATTER)
+  const handleHistReset     = useReset(DEFAULT_HISTOGRAM)
+  const handleRocReset      = useReset(DEFAULT_ROC)
+  const handlePrReset       = useReset(DEFAULT_PR)
+  const handleLearningReset = useReset(DEFAULT_LEARNING)
+  const handleFeatureReset  = useReset(DEFAULT_FEATURE)
+  const handleBoxReset      = useReset(DEFAULT_BOX)
+  const handleViolinReset   = useReset(DEFAULT_VIOLIN)
+  const handleErrorBarReset    = useReset(DEFAULT_ERRORBAR)
+  const handleStackedBarReset  = useReset(DEFAULT_STACKED_BAR)
+  const handleComboReset       = useReset(DEFAULT_COMBO)
+  const handlePieReset         = useReset(DEFAULT_PIE)
 
   // ----------------------------------------------------- download
   const handleDownload = async () => {

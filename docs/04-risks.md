@@ -30,7 +30,7 @@
 - [x] **`/api/resolve-citation`のSSRF対策** → **実装済み（2026-07-06、Phase 7完了後・Phase 8着手前）**：既知ドメインへの許可リスト方式（`doi.org`/`dl.acm.org`/`link.springer.com`/`ieeexplore.ieee.org`/`sciencedirect.com`、HTTPSのみ、リダイレクト先も再検証）でURLを制限し、`api/resolve-citation.py`を新設。`fetchCitation.ts`の外部公開CORSプロキシ（corsproxy.io/allorigins.win）依存をこれに置き換えた。詳細：decisions-log.md
 - [x] **IndexedDBスキーマバージョニング規約** → **対応方針を確定（2026-07-06）**：Table（`tableSessions`）に加えCitation（`citationLibrary`）・Chart（`layout`）にも`schemaVersion`+`migrate()`を適用。Chart の `figures`（FigureType判別共用体で型変更コストが高い）・`previews`（opaqueなbase64文字列でスキーマ自体が無い）は対象外とし、既存の構造検出型マイグレーション（`migrateFigures()`）を踏襲することにした。詳細：decisions-log.md
 - [x] **授業提出物としての位置づけの確認** → **確定：本統合が最終提出物**（2026-07-06）。README.mdの作成をPhase 8に追加済み（[phases/phase-8-deploy.md](phases/phase-8-deploy.md)）
-- [ ] **ブラウザ互換性**：Chrome中心の動作確認になりがちなため、統合後はSafari/Firefoxでも簡易確認する（Phase 8以降で未対応）
+- [x] **ブラウザ互換性** → **簡易確認済み（2026-07-06）**：Playwrightで Chromium/Firefox/WebKit の3エンジンで全4タブを開き、コンソールエラー無し・見た目に崩れが無いことを確認（実機Safariでの確認ではなくWebKitエンジンでの近似確認）
 - [x] **UI文言中の自己参照URL** → **確認済み（2026-07-06）**：`src/`配下を検索し旧デプロイURL（`*.vercel.app`）への言及なしを確認
 - [ ] **Vercel Hobbyプランの上限**：matplotlib依存の関数サイズ（D自身が250MB以内を検証済み）・実行時間上限を、`/api/resolve-citation`追加後の現在の関数構成で再確認する（Phase 8のデプロイ作業内で確認予定）
 - [x] **新規連携機能（Phase 5）の優先順位** → **ユーザー判断により決着**：「1つを完全に仕上げる」ではなく6項目全部（OCR展開含む）を実施する方針をユーザーが選択（[phases/phase-5-integrations.md](phases/phase-5-integrations.md)）
