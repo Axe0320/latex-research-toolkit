@@ -1,16 +1,26 @@
-import { getDB } from '../../../../shared/persistence'
+import { getDB, migrate, type VersionedRecord } from '../../../../shared/persistence'
 import type { LibraryEntry } from './types'
 
 const KEY = 'entries'
+const SCHEMA_VERSION = 1
+
+interface LibraryRecord extends VersionedRecord {
+  entries: LibraryEntry[]
+}
 
 export async function load(): Promise<LibraryEntry[]> {
   const db = await getDB()
-  return (await db.get('citationLibrary', KEY)) ?? []
+  const raw = await db.get('citationLibrary', KEY) as LibraryRecord | LibraryEntry[] | undefined
+  if (!raw) return []
+  // Pre-schemaVersion records were stored as a bare array.
+  if (Array.isArray(raw)) return raw
+  return migrate(raw, SCHEMA_VERSION, {}).entries
 }
 
 export async function save(lib: LibraryEntry[]): Promise<void> {
   const db = await getDB()
-  await db.put('citationLibrary', lib, KEY)
+  const record: LibraryRecord = { schemaVersion: SCHEMA_VERSION, entries: lib }
+  await db.put('citationLibrary', record, KEY)
 }
 
 export function mergeReplace(

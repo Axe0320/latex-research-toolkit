@@ -99,21 +99,19 @@ async function tryFetchHTML(url: string): Promise<string | null> {
     }
   } catch { /* CORS blocked or timed out */ }
 
-  // corsproxy.io
+  // Server-side proxy (api/resolve-citation.py): allowlists known publisher
+  // domains only, so this project's own backend does the fetch instead of
+  // routing user-entered URLs through public third-party CORS proxies.
   try {
-    const res = await fetchWithTimeout(`https://corsproxy.io/?${encodeURIComponent(url)}`)
+    const res = await fetchWithTimeout('/api/resolve-citation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    })
     if (res.ok) {
-      return await res.text()
-    }
-  } catch { /* proxy unavailable or timed out */ }
-
-  // allorigins.win (returns JSON envelope)
-  try {
-    const res = await fetchWithTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`)
-    if (res.ok) {
-      const json = await res.json() as { contents?: string }
-      if (json.contents) {
-        return json.contents
+      const json = await res.json() as { html?: string }
+      if (json.html) {
+        return json.html
       }
     }
   } catch { /* proxy unavailable or timed out */ }

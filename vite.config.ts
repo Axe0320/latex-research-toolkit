@@ -18,6 +18,7 @@ export default defineConfig({
       '/api/compose': 'http://127.0.0.1:8802',
       '/api/stat_test': 'http://127.0.0.1:8803',
       '/api/ocr': 'http://127.0.0.1:8804',
+      '/api/resolve-citation': 'http://127.0.0.1:8805',
     },
   },
 })
