@@ -1,0 +1,24 @@
+# Reference clones used for design/porting only — never part of this repo
+repos/
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+*.log
+npm-debug.log*
+
+# TypeScript cache
+*.tsbuildinfo
