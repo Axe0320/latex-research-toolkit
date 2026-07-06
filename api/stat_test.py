@@ -24,15 +24,14 @@ class handler(BaseHTTPRequestHandler):
             return
 
         try:
-            from scipy import stats
+            from _lib import stats_lite
             if test == 'ttest':
-                result = stats.ttest_ind(g1, g2)
+                p = stats_lite.ttest_ind(g1, g2, equal_var=True)
             elif test == 'welch':
-                result = stats.ttest_ind(g1, g2, equal_var=False)
+                p = stats_lite.ttest_ind(g1, g2, equal_var=False)
             else:
-                result = stats.mannwhitneyu(g1, g2, alternative='two-sided')
+                p = stats_lite.mannwhitneyu(g1, g2)
 
-            p = float(result.pvalue)
             if p < 0.001:
                 label = '***'
             elif p < 0.01:
