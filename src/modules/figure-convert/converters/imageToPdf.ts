@@ -5,7 +5,7 @@ import type { InputFormat } from '../types/conversion'
 const MAX_PAGE_PT = 842 // A4 height in points (297mm)
 const MARGIN_PT = 0    // no margin — preserve full image
 
-function pixelsToPt(px: number, dpi = 72): number {
+export function pixelsToPt(px: number, dpi = 72): number {
   return (px / dpi) * 72
 }
 
@@ -25,7 +25,7 @@ async function loadImageDimensions(file: File): Promise<{ width: number; height:
   })
 }
 
-function calcPageSize(
+export function calcPageSize(
   imgW: number,
   imgH: number,
 ): { pageW: number; pageH: number; drawW: number; drawH: number; x: number; y: number } {

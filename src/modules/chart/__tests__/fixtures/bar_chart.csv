@@ -1,0 +1,4 @@
+labels,Method A,Method B,Method C,Method D
+Precision,72.3,85.1,78.6,91.4
+Recall,68.9,80.2,75.3,88.7
+F1-score,70.6,82.6,76.9,90.0
