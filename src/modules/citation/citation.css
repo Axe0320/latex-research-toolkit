@@ -1,6 +1,11 @@
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
+/*
+ * Selectors here are scoped under .citation-module to avoid leaking onto the
+ * rest of the app (this file used to set :root variables, `*` and `body`
+ * unscoped, which overrode the shared app shell's Tailwind spacing whenever
+ * this module's CSS chunk was loaded) — same pattern as .table-module,
+ * .figure-convert-module and .chart-module.
+ */
+.citation-module {
   --bg:           #F8FAFC;
   --card:         #FFFFFF;
   --border:       #E5E7EB;
@@ -25,15 +30,7 @@
   --r:  14px;
   --rs:  8px;
   --rx:  6px;
-}
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
-  min-height: 100vh;
   line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
 }
 
 /* ── Layout ──────────────────────────────────────── */
@@ -322,7 +319,7 @@ body {
 
 /* ── Textarea ────────────────────────────────────── */
 
-textarea {
+.citation-module textarea {
   width: 100%;
   background: #FAFAFA;
   border: 1.5px solid var(--border);
@@ -337,12 +334,12 @@ textarea {
   outline: none;
   transition: border-color .18s, box-shadow .18s, background .18s;
 }
-textarea::placeholder { color: var(--text-light); font-style: italic; }
-textarea:hover  { border-color: var(--border-hover); }
-textarea:focus  { border-color: var(--border-focus); background: #fff; box-shadow: 0 0 0 3px rgba(108,99,255,.1); }
-textarea.has-error { border-color: var(--error); background: var(--error-bg); box-shadow: 0 0 0 3px rgba(239,68,68,.08); }
-textarea[readonly] { background: #F9F9FF; cursor: default; color: #3730A3; }
-textarea[readonly]:focus { box-shadow: 0 0 0 3px rgba(108,99,255,.08); }
+.citation-module textarea::placeholder { color: var(--text-light); font-style: italic; }
+.citation-module textarea:hover  { border-color: var(--border-hover); }
+.citation-module textarea:focus  { border-color: var(--border-focus); background: #fff; box-shadow: 0 0 0 3px rgba(108,99,255,.1); }
+.citation-module textarea.has-error { border-color: var(--error); background: var(--error-bg); box-shadow: 0 0 0 3px rgba(239,68,68,.08); }
+.citation-module textarea[readonly] { background: #F9F9FF; cursor: default; color: #3730A3; }
+.citation-module textarea[readonly]:focus { box-shadow: 0 0 0 3px rgba(108,99,255,.08); }
 
 /* ── Messages ────────────────────────────────────── */
 

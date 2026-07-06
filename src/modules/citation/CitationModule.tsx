@@ -429,14 +429,8 @@ export default function CitationModule() {
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="page">
+    <div className="citation-module page">
       <div className="wrapper">
-
-        {/* Header */}
-        <header className="header">
-          <h1>Citation ⇄ <span className="accent">BibTeX</span></h1>
-          <p>論文引用テキストを変換・整形するツール</p>
-        </header>
 
         {/* Main card */}
         <div className="card">

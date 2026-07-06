@@ -1,6 +1,5 @@
 import './figure-convert.css'
 import { useState, useCallback, useEffect } from 'react'
-import { Header } from './components/Header'
 import { FileUploader } from './components/FileUploader'
 import { FileList } from './components/FileList'
 import { FormatSelector } from './components/FormatSelector'
@@ -90,8 +89,6 @@ export default function FigureConvertModule() {
   return (
     <div className="figure-convert-module page">
       <div className="wrapper">
-        <Header />
-
         <div className="card">
           {/* ── 1. Upload ── */}
           <div>
