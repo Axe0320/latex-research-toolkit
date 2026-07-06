@@ -1,0 +1,20 @@
+/*
+ * Chart's components are almost entirely Tailwind utility classes (shared
+ * globally by design, no collision risk) — unlike Citation/Table/Figure
+ * Convert, this module has no custom CSS classes of its own. The only
+ * non-Tailwind pieces are these two custom properties, referenced via
+ * `var(--shadow-sm)` in a few inline styles, so they're scoped under
+ * .chart-module rather than added to the global :root (same pattern as the
+ * other modules' scoped CSS files).
+ */
+.chart-module {
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 20px rgba(0,0,0,.07), 0 2px 8px rgba(0,0,0,.04);
+}
+
+.chart-module input[type="text"],
+.chart-module input[type="number"],
+.chart-module select,
+.chart-module textarea {
+  font-family: inherit;
+}

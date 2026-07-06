@@ -14,17 +14,22 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@sentry/react": "^10.61.0",
     "idb": "^8.0.3",
     "jspdf": "^4.2.1",
     "jszip": "^3.10.1",
+    "lodash-es": "^4.18.1",
     "pdf-lib": "^1.17.1",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "svg2pdf.js": "^2.7.0",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+    "tesseract.js": "^7.0.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.1",
+    "@types/lodash-es": "^4.17.12",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",
