@@ -26,3 +26,6 @@ npm-debug.log*
 *.tsbuildinfo
 .vercel
 .env*
+
+# Claude Code local session state
+.claude/
