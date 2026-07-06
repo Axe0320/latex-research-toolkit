@@ -3,6 +3,8 @@ repos/
 
 # Dependencies
 node_modules/
+.venv/
+__pycache__/
 
 # Build output
 dist/

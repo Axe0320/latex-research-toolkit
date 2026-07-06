@@ -13,8 +13,11 @@ export function getDB(): Promise<IDBPDatabase> {
     dbPromise = openDB(DB_NAME, DB_VERSION, {
       upgrade(db) {
         if (!db.objectStoreNames.contains('tableSessions')) db.createObjectStore('tableSessions')
+        if (!db.objectStoreNames.contains('figures'))  db.createObjectStore('figures', { keyPath: 'id' })
+        if (!db.objectStoreNames.contains('layout'))   db.createObjectStore('layout')
+        if (!db.objectStoreNames.contains('previews')) db.createObjectStore('previews')
         // Add remaining stores here as each module migrates onto this shared
-        // DB: citationLibrary, figures/layout/previews (Phase 4), clipboard (Phase 5).
+        // DB: citationLibrary, clipboard (Phase 5).
       },
     })
   }
