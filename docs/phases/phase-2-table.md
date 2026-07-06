@@ -58,4 +58,4 @@ latex-table-composer を `modules/table/` として移植する。B 自身の `I
 - **CSV/TSV共通化**：`parseCSV.ts`/`parseTSV.ts`を`shared/lib/dataParsing/`に抽出し、Tableの`parser/index.ts`はそこからimportする形に変更。detect.ts・Classification Report・Logパーサ等Table固有の判定ロジックはそのまま`modules/table/`に残置（D/Chartとの実統合はPhase 5の対象のまま）。
 - **IndexedDB永続化**：`shared/persistence`の`tableSessions`ストアに`{tables, activeTableId}`を300msデバウンスで保存。ロード完了前に保存が走ると初期ダミーテーブルで上書きしてしまうため、`sessionLoaded`フラグでガード。
 - **既知の非回帰事項（元アプリ由来）**：モバイル幅で「Paste/Upload/Create/Merge」のモード切替バーが2回表示される（`App.tsx`の上部に常時表示の`ModeSelector`と、モバイル専用Inputタブ内の`ModeSelector`が両方レンダリングされるため）。元のlatex-table-composer単体でも同じ構造だったため、今回のポートで新規発生した問題ではない。UI崩れではなく単なる重複表示のため今回は無改造。Phase 6（デザイン統一）で対応する候補として記録。
-- **xlsx依存**：動的import（`await import('xlsx')`）のため本体バンドルには含まれず、Excel読み込み時のみ424KB（gzip 141KB）の別チャンクとして遅延ロードされることをビルド出力で確認。
+- **xlsx依存**：動的import（`await import('xlsx')`）のため本体バンドルには含まれず、Excel読み込み時のみ424KB（gzip 141KB）の別チャンクとして遅延ロードされることをビルド出力で確認。**追記（Phase 3で発覚）**：この時点でのnpmレジストリ版`xlsx@0.18.5`にhigh重度の脆弱性2件が存在することが後のPhase 3の`npm audit`で判明し、SheetJS公式CDN配布の修正版に切り替えた。詳細は[phase-3-figure-convert.md](phase-3-figure-convert.md)実施メモを参照。
