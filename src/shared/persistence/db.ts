@@ -11,10 +11,10 @@ let dbPromise: Promise<IDBPDatabase> | null = null
 export function getDB(): Promise<IDBPDatabase> {
   if (!dbPromise) {
     dbPromise = openDB(DB_NAME, DB_VERSION, {
-      upgrade(_db) {
-        // Add `_db.createObjectStore(...)` here as each module migrates onto
-        // this shared DB: citationLibrary, tableSessions (Phase 2),
-        // figures/layout/previews (Phase 4), clipboard (Phase 5).
+      upgrade(db) {
+        if (!db.objectStoreNames.contains('tableSessions')) db.createObjectStore('tableSessions')
+        // Add remaining stores here as each module migrates onto this shared
+        // DB: citationLibrary, figures/layout/previews (Phase 4), clipboard (Phase 5).
       },
     })
   }
