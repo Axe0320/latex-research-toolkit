@@ -12,7 +12,7 @@
 
 - 新規リポジトリ（[00-overview.md](../00-overview.md) §2、提案名 `latex-research-toolkit`）から単一Vercelプロジェクトとしてデプロイ
 - 静的ビルド（Vite）+ Python Functions（`api/*.py`）が混在するプロジェクト設定（Dの`vercel.json`をベースに統合）
-- 環境変数の整理：`VITE_SENTRY_DSN`（アプリ全体に拡大、[03-tech-alignment.md](../03-tech-alignment.md)）、Vision AI関連は引き続きユーザーのlocalStorage管理でサーバー環境変数は不要
+- 環境変数の整理：`VITE_SENTRY_DSN`（Phase 4で新規作成した統合アプリ専用SentryプロジェクトのDSNを設定。Dの旧Sentryプロジェクトとは別、[03-tech-alignment.md](../03-tech-alignment.md)）、Vision AI関連は引き続きユーザーのlocalStorage管理でサーバー環境変数は不要
 - 旧4つのVercelデプロイは**そのまま維持**（[00-overview.md](../00-overview.md) §2で確定済み。リダイレクト等の追加作業は行わない）
 - **README.md の作成**（本統合は最終提出物のため必須、[04-risks.md](../04-risks.md)で確定）
 

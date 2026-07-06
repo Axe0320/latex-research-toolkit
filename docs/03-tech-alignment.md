@@ -12,6 +12,6 @@
 | ルーティング | 4アプリともルーター未使用 | タブ状態をURL（`/citation` `/table` `/figure` `/chart`）に反映し、ブックマーク・ブラウザバックに対応 |
 | エラーバウンダリ | 4アプリとも未実装（単体の小規模アプリだったため不要だった） | モジュールごとに`ErrorBoundary`でラップし、1モジュールの不具合が他タブを巻き込まないようにする |
 | コード分割 | なし（4アプリはそれぞれ独立ビルドだったため不要だった） | `React.lazy`でタブごとに動的import。[04-risks.md](04-risks.md) リスク1（バンドルサイズ）の直接対策 |
-| Sentry適用範囲 | Dのみ導入 | **アプリ全体に拡大**（決定）。`main.tsx`で一度initすれば全モジュールのErrorBoundaryもカバーでき追加コストはほぼゼロ |
+| Sentry適用範囲 | Dのみ導入 | **アプリ全体に拡大**（決定）。`main.tsx`で一度initすれば全モジュールのErrorBoundaryもカバーでき追加コストはほぼゼロ。**Sentry側のプロジェクトはD単体のものを流用せず、統合アプリ用に新規プロジェクトを作成しDSNを分ける**（2026-07-06追加決定）。旧4デプロイは維持されるため、Dの旧Sentryプロジェクトはそのまま旧単体デプロイ用として使い続け、新DSNを取り違えないよう注意する |
 | CI | 4リポジトリともGitHub Actions等のCI設定が一切ない | `npm run build` + `vitest`を回す最低限のワークフローを新設。バージョン昇格（[01-architecture.md](01-architecture.md) §2.2）の回帰検知に直結するため優先度高 |
 | Vision AI OCR | Dのみ実装 | Table・Citationへの展開を検討（[02-integrations.md](02-integrations.md) §3.3、優先度は中） |

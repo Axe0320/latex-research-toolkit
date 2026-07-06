@@ -54,3 +54,8 @@ D専用だったOCRパイプラインをTable・Citationにも展開可能な共
 - **配置場所**：`c:\dev\Integration-app` 直下（`repos/`・`docs/`と同階層）をそのまま新リポジトリのルートとする。別サブフォルダは切らない。
 - **Phase 1のスコープ**：ローカルでの実装・動作確認だけでなく、GitHub上への新規リポジトリ作成・pushまで含めることを確定。
 - これによりPhase 1着手の前提が揃ったため実装を開始する。
+
+### 2026-07-06 — Vercelデプロイのタイミング、Sentryプロジェクトの分離
+
+- **Vercelデプロイのタイミング**：早期にpreviewデプロイして`vercel.json`（Python Functions混在設定）を検証しておく案を提示したが、ユーザーは計画通りPhase 8（全Phase完了後の一括デプロイ）を選択。
+- **Sentryプロジェクトの分離（ユーザー提案・採用）**：実装タイミングはPhase 4のままでよいが、Sentry側の管理単位（プロジェクト）はDが元々使っていたものを流用せず、統合アプリ用に新規作成することに決定。旧4デプロイ（Dの単体デプロイ含む）がそのまま生き続ける方針のため、同一Sentryプロジェクトを共有するとエラーの発生元（統合アプリ vs 旧D単体）が混同されてしまうのが理由。詳細：[03-tech-alignment.md](03-tech-alignment.md)、[phases/phase-4-chart.md](phases/phase-4-chart.md)、[phases/phase-8-deploy.md](phases/phase-8-deploy.md)。
