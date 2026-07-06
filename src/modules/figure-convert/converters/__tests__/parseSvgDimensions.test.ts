@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { parseSvgDimensions } from '../parseSvgDimensions'
 
-const FIXTURES = join(__dirname, '..', '..', '__tests__', 'fixtures')
+const FIXTURES = join(__dirname, '..', '..', '..', '..', '..', 'test-data', 'figure-convert')
 
 describe('parseSvgDimensions', () => {
   it('reads width/height from a real sample SVG viewBox', () => {

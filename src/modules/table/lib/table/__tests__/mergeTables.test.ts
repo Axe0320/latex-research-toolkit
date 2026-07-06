@@ -6,7 +6,7 @@ import { normalizeTable } from '../normalize/normalizeTable'
 import { parseCSV } from '../../../../../shared/lib/dataParsing'
 import type { TableModel } from '../types'
 
-const FIXTURES = join(__dirname, 'fixtures')
+const FIXTURES = join(__dirname, '..', '..', '..', '..', '..', '..', 'test-data', 'table')
 
 function loadFixture(name: string): TableModel {
   const text = readFileSync(join(FIXTURES, name), 'utf-8')

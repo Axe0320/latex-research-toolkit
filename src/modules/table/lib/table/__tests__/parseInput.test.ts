@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { parseInput } from '../parser'
 
-const FIXTURES = join(__dirname, 'fixtures')
+const FIXTURES = join(__dirname, '..', '..', '..', '..', '..', '..', 'test-data', 'table')
 
 describe('parseInput', () => {
   it('returns null for unrecognized input', () => {

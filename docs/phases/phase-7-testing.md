@@ -32,7 +32,7 @@ Vitestテストが存在するのはA(Citation)のみ（[03-tech-alignment.md](.
 - `latex-figure-composer/test/approach.{png,jpg,jpeg,svg}`（変換テスト用サンプル画像、SVGは実際の`viewBox="0 0 800 480"`を持つ）
 - `figure-modification/test/csv/*.csv`（16図種分のサンプルCSV）+ `README.md`（各図種の期待値付き手動チェックリスト）
 
-これらをそれぞれ`src/modules/{table,figure-convert,chart}/**/__tests__/fixtures/`にコピーし、新規Vitestテストの実データフィクスチャとして採用した（Chart側は`validate()`のテストのみに留まり今回はCSVフィクスチャを直接使うテストは書いていないが、将来のCSV→FigureData変換テスト追加時に流用可能）。
+これらをそれぞれ`test-data/{table,figure-convert,chart}/`にコピーし、新規Vitestテストの実データフィクスチャとして採用した（Chart側は`validate()`のテストのみに留まり今回はCSVフィクスチャを直接使うテストは書いていないが、将来のCSV→FigureData変換テスト追加時に流用可能）。当初は各モジュールの`__tests__/fixtures/`に分散配置していたが、`repos/`自体はGitHubにpushされない参照用クローンであるため「サンプルデータを一箇所にまとめておきたい」というユーザーの意向を受け、プロジェクト直下の`test-data/`にモジュール別サブフォルダで集約する構成に変更した（元の4リポジトリがそれぞれ`test/`・`test-data/`を1つだけ持っていた構成に近い）。
 
 ### 1. Citation（A）：既存テストの確認
 
