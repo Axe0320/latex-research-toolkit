@@ -1,5 +1,5 @@
 import { Suspense, lazy, useCallback, useEffect, useState } from 'react'
-import { Header, TabBar, Toast, useToast, type TabDef } from './shared/ui'
+import { Header, TabBar, Toast, useToast, ModuleErrorBoundary, type TabDef } from './shared/ui'
 import { APP_NAME } from './shared/theme'
 import { onTabRequest } from './shared/navigation'
 
@@ -92,22 +92,22 @@ export default function App() {
         <Suspense fallback={<div className="text-center text-sm text-[#6B7280] py-16">読み込み中...</div>}>
           {mountedTabs.has('citation') && (
             <div style={{ display: activeTab === 'citation' ? 'block' : 'none' }}>
-              <CitationModule />
+              <ModuleErrorBoundary moduleName="Citation"><CitationModule /></ModuleErrorBoundary>
             </div>
           )}
           {mountedTabs.has('table') && (
             <div style={{ display: activeTab === 'table' ? 'block' : 'none' }}>
-              <TableModule />
+              <ModuleErrorBoundary moduleName="Table"><TableModule /></ModuleErrorBoundary>
             </div>
           )}
           {mountedTabs.has('figure') && (
             <div style={{ display: activeTab === 'figure' ? 'block' : 'none' }}>
-              <FigureConvertModule />
+              <ModuleErrorBoundary moduleName="Figure Converter"><FigureConvertModule /></ModuleErrorBoundary>
             </div>
           )}
           {mountedTabs.has('chart') && (
             <div style={{ display: activeTab === 'chart' ? 'block' : 'none' }}>
-              <ChartModule />
+              <ModuleErrorBoundary moduleName="Chart"><ChartModule /></ModuleErrorBoundary>
             </div>
           )}
         </Suspense>
