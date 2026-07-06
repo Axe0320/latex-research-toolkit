@@ -784,6 +784,7 @@ const MODE_OPTIONS: { value: InputMode; icon: string; label: string; desc: strin
   { value: 'upload', icon: '📂', label: 'Upload', desc: 'ファイル読み込み' },
   { value: 'create', icon: '🆕', label: 'Create', desc: '空テーブル作成' },
   { value: 'merge', icon: '🔗', label: 'Merge', desc: 'ソース統合' },
+  { value: 'ocr', icon: '🖼️', label: 'OCR', desc: '画像から読み取り' },
 ]
 
 function ModeSelector({ active, onChange }: { active: InputMode; onChange: (m: InputMode) => void }) {

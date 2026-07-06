@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import './citation.css'
+import { Toast, useToast } from '../../shared/ui'
 import {
   convert, convertBatch, isBatch, detectInputMode, DEFAULT_FIELDS, extractDOI,
   type DataType, type FieldSelection, type ValidationWarning, type BibEntryType, type BatchSummary,
@@ -9,16 +10,17 @@ import { formatBibTeX } from './lib/bibtex/bibToTxt'
 import { splitCitations } from './lib/citation/splitCitations'
 import type { CitationStyle } from './lib/bibtex/types'
 import { parseBibEntry } from './lib/bibtex/parser/parseBibEntry'
-import { load as loadLibrary, save as saveLibrary, mergeReplace, checkBeforeSave } from './lib/library/storage'
+import { load as loadLibrary, save as saveLibrary, mergeReplace } from './lib/library/storage'
 import type { LibraryEntry } from './lib/library/types'
 import { applyCleanupBatch } from './lib/bibtex/cleanup'
 import type { CleanupOptions } from './lib/bibtex/cleanup'
 import LibraryPanel from './components/LibraryPanel'
 import FieldSelector from './components/FieldSelector'
+import OcrImport from './components/OcrImport'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
-type InputSource = 'text' | 'doi' | 'url' | 'file'
+type InputSource = 'text' | 'doi' | 'url' | 'file' | 'ocr'
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -62,8 +64,7 @@ export default function CitationModule() {
   const [fetchError, setFetchError]     = useState('')
   const [warnings, setWarnings]         = useState<ValidationWarning[]>([])
   const [copied, setCopied]             = useState(false)
-  const [toastMsg, setToastMsg]         = useState('')
-  const [toastVisible, setToastVisible] = useState(false)
+  const { message: toastMsg, visible: toastVisible, show: showToast } = useToast()
   const [isDragOver, setIsDragOver]     = useState(false)
   const [fileName, setFileName]         = useState('')
   const [isFetching, setIsFetching]     = useState(false)
@@ -71,30 +72,29 @@ export default function CitationModule() {
   const [citationStyle, setCitationStyle] = useState<CitationStyle>('classic')
   const [entryType, setEntryType]       = useState<BibEntryType | 'auto'>('auto')
   const [batchSummary, setBatchSummary] = useState<BatchSummary | null>(null)
-  const [library, setLibrary]           = useState<LibraryEntry[]>(() => loadLibrary())
+  const [library, setLibrary]           = useState<LibraryEntry[]>([])
+  const [libraryLoaded, setLibraryLoaded] = useState(false)
   const [cleanupOpts, setCleanupOpts]   = useState<CleanupOptions>({ normalizeKeys: false, removeEmptyFields: false })
   const [cleanupEntryType, setCleanupEntryType] = useState<BibEntryType | 'auto'>('auto')
   const fileRef = useRef<HTMLInputElement>(null)
 
-  // Toast auto-hide
-  useEffect(() => {
-    if (!toastVisible) return
-    const t = setTimeout(() => setToastVisible(false), 2200)
-    return () => clearTimeout(t)
-  }, [toastVisible])
-
   // ── Helpers ─────────────────────────────────────────────────────────────────
 
-  const showToast = useCallback((msg: string) => {
-    setToastMsg(msg)
-    setToastVisible(true)
+  // Library persistence (IndexedDB `citationLibrary` store)
+  useEffect(() => {
+    let cancelled = false
+    loadLibrary().then((entries) => {
+      if (cancelled) return
+      setLibrary(entries)
+      setLibraryLoaded(true)
+    })
+    return () => { cancelled = true }
   }, [])
 
-  // Library persistence
   useEffect(() => {
-    const result = saveLibrary(library)
-    if (result === 'warn') showToast('ライブラリが容量上限に近づいています')
-  }, [library, showToast])
+    if (!libraryLoaded) return
+    saveLibrary(library).catch(() => {})
+  }, [library, libraryLoaded])
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
@@ -171,11 +171,6 @@ export default function CitationModule() {
     })
 
     const { merged, replaced } = mergeReplace(library, incoming)
-    const check = checkBeforeSave(merged)
-    if (check === 'full') {
-      showToast('保存できませんでした（容量超過）')
-      return
-    }
     setLibrary(merged)
     if (incoming.length === 1) {
       showToast(replaced > 0 ? `${incoming[0].key} を上書きしました` : '1件追加しました')
@@ -448,7 +443,7 @@ export default function CitationModule() {
 
           {/* Input source tabs */}
           <div className="source-tabs">
-            {(['text', 'doi', 'url', 'file'] as InputSource[]).map(src => (
+            {(['text', 'doi', 'url', 'file', 'ocr'] as InputSource[]).map(src => (
               <button
                 key={src}
                 className={`source-tab${inputSource === src ? ' active' : ''}`}
@@ -476,7 +471,12 @@ export default function CitationModule() {
                     <polyline points="14 2 14 8 20 8"/>
                   </svg>
                 )}
-                {src === 'text' ? 'Text' : src === 'doi' ? 'DOI' : src === 'url' ? 'URL' : 'File'}
+                {src === 'ocr' && (
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+                  </svg>
+                )}
+                {src === 'text' ? 'Text' : src === 'doi' ? 'DOI' : src === 'url' ? 'URL' : src === 'file' ? 'File' : 'OCR'}
               </button>
             ))}
           </div>
@@ -622,7 +622,9 @@ export default function CitationModule() {
                   ? (inputSource === 'doi' ? 'Input — DOI' : 'Input — Article URL')
                   : inputSource === 'file'
                     ? 'Input — File'
-                    : INPUT_LABEL[inputType]
+                    : inputSource === 'ocr'
+                      ? 'Input — OCR'
+                      : INPUT_LABEL[inputType]
                 }
               </div>
             </div>
@@ -707,6 +709,21 @@ export default function CitationModule() {
                   />
                 )}
               </>
+            )}
+
+            {/* OCR source */}
+            {inputSource === 'ocr' && (
+              <OcrImport
+                onExtracted={(text) => {
+                  setInput(text)
+                  setInputType('txt')
+                  setManualInput(false)
+                  clearErrors()
+                  setOutput('')
+                  setInputSource('text')
+                  showToast('OCRの抽出結果をTextタブに取り込みました')
+                }}
+              />
             )}
 
             {/* Text source */}
@@ -868,11 +885,7 @@ export default function CitationModule() {
         <footer className="footer">Powered by React + TypeScript + Vite</footer>
       </div>
 
-      {/* Toast */}
-      <div className={`toast${toastVisible ? ' visible' : ''}`}>
-        <span className="toast-dot" />
-        {toastMsg}
-      </div>
+      <Toast message={toastMsg} visible={toastVisible} />
     </div>
   )
 }

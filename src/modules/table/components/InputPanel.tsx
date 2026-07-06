@@ -5,8 +5,9 @@ import { parseInput } from '../lib/table/parser'
 import { parseHTMLTable } from '../lib/table/clipboard/parseHTMLTable'
 import { parseClipboardMarkdown } from '../lib/table/clipboard/parseClipboardMarkdown'
 import { MergePanel } from './MergePanel'
+import { OcrImportContent } from './OcrImportContent'
 
-export type InputMode = 'paste' | 'upload' | 'create' | 'merge'
+export type InputMode = 'paste' | 'upload' | 'create' | 'merge' | 'ocr'
 
 const QUICK_PRESETS = [
   { label: '2×2', rows: 2, cols: 2 },
@@ -52,6 +53,7 @@ export function InputPanel(props: InputPanelProps) {
       {props.mode === 'paste' && <PasteContent onParse={props.onParse} />}
       {props.mode === 'upload' && <UploadContent onUpload={props.onMainFileUpload} />}
       {props.mode === 'create' && <CreateContent onCreateTable={props.onCreateTable} />}
+      {props.mode === 'ocr' && <OcrImportContent onParse={props.onParse} />}
       {props.mode === 'merge' && (
         <MergePanel
           variant="inline"

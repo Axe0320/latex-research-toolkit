@@ -23,6 +23,8 @@ import { useFigureStore } from './store/figureStore'
 import { getPreview } from './cache/previewCache'
 import { savePreview } from './storage/db'
 import { debouncedRender, renderAndCache, renderForDownload, composeAndExport } from './api/figureApi'
+import { sendToClipboard } from '../../shared/clipboard'
+import { requestTab } from '../../shared/navigation'
 import CreateMode from './components/input/CreateMode'
 import HeatmapCreateMode from './components/input/HeatmapCreateMode'
 import BarChartInput from './components/input/BarChartInput'
@@ -60,7 +62,7 @@ import FigureList from './components/common/FigureList'
 import ComposeSettings from './components/compose/ComposeSettings'
 import ComposeCanvas from './components/compose/ComposeCanvas'
 import ImportModal from './components/import/ImportModal'
-import OcrSettings from './components/import/OcrSettings'
+import { OcrSettings } from '../../shared/ocr'
 
 // ------------------------------------------------------------------ defaults
 const DEFAULT_CM: ConfusionMatrixState = {
@@ -765,6 +767,19 @@ export default function ChartModule() {
     }
   }
 
+  // ----------------------------------------------------- send to Figure Converter
+  const handleSendToFigureConverter = useCallback(async () => {
+    if (!selectedFigure) return
+    const b64 = previews[selectedFigure.id]
+    if (!b64) return
+    const bytes = atob(b64)
+    const arr = new Uint8Array(bytes.length)
+    for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i)
+    const blob = new Blob([arr], { type: 'image/png' })
+    await sendToClipboard({ type: 'figure', format: 'png', blob, sourceModule: 'chart' })
+    requestTab('figure')
+  }, [selectedFigure, previews])
+
   // ----------------------------------------------------- compose export
   const handleComposeExport = async () => {
     if (figures.length === 0) return
@@ -1061,6 +1076,7 @@ export default function ChartModule() {
                 downloadLoading={downloadLoading}
                 onFormatChange={setDownloadFormat}
                 onDownload={handleDownload}
+                onSendToFigureConverter={handleSendToFigureConverter}
               />
             </div>
           ) : (

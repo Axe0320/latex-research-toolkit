@@ -1,34 +1,16 @@
-import type { LibraryEntry, SaveResult } from './types'
+import { getDB } from '../../../../shared/persistence'
+import type { LibraryEntry } from './types'
 
-const STORAGE_KEY      = 'citation-lib'
-const HARD_LIMIT_COUNT = 500
-const SOFT_LIMIT_BYTES = 4 * 1024 * 1024
+const KEY = 'entries'
 
-function byteSize(lib: LibraryEntry[]): number {
-  return new Blob([JSON.stringify(lib)]).size
+export async function load(): Promise<LibraryEntry[]> {
+  const db = await getDB()
+  return (await db.get('citationLibrary', KEY)) ?? []
 }
 
-export function checkBeforeSave(lib: LibraryEntry[]): SaveResult {
-  if (lib.length > HARD_LIMIT_COUNT) return 'full'
-  if (byteSize(lib) > SOFT_LIMIT_BYTES) return 'warn'
-  return 'ok'
-}
-
-export function load(): LibraryEntry[] {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]') as LibraryEntry[]
-  } catch { return [] }
-}
-
-export function save(lib: LibraryEntry[]): SaveResult {
-  const pre = checkBeforeSave(lib)
-  if (pre === 'full') return 'full'
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(lib))
-    return pre
-  } catch {
-    return 'full'
-  }
+export async function save(lib: LibraryEntry[]): Promise<void> {
+  const db = await getDB()
+  await db.put('citationLibrary', lib, KEY)
 }
 
 export function mergeReplace(
