@@ -76,7 +76,7 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col items-center pb-16">
       <Header title={APP_NAME} subtitle="Citation・Table・Figure・Chart を1つに統合した論文執筆支援ツール" />
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-center gap-3 px-4">
         <TabBar tabs={TABS} active={activeTab} onChange={handleTabChange} />
         <button
           onClick={handleExportPaperAssets}

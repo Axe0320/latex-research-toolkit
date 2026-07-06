@@ -573,31 +573,20 @@ function TableModule() {
 
   return (
     <div className="table-module min-h-screen" style={{ background: 'var(--bg)' }}>
-      {/* Header */}
+      {/* Action bar (module title removed — the app shell's own header already
+          shows "LaTeX Research Toolkit" + the active tab; repeating a module
+          brand name here just duplicated it) */}
       <header
         className="sticky top-0 z-10 border-b"
         style={{ background: 'var(--card)', borderColor: 'var(--border)', boxShadow: 'var(--shadow-sm)' }}
       >
-        <div className="mx-auto flex items-center justify-between px-5 py-4" style={{ maxWidth: '960px' }}>
-          <div>
-            <h1
-              className="text-xl font-extrabold leading-tight"
-              style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}
-            >
-              LaTeX <span style={{ color: 'var(--accent)' }}>Table Composer</span>
-            </h1>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--text-sub)' }}>
-              表データを論文向け LaTeX に変換・整形するツール
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button className="btn-secondary text-sm" onClick={handleLoadExample}>
-              Load Example
-            </button>
-            <button className="btn-primary text-sm" onClick={handleCopyLatex}>
-              {copied ? 'Copied!' : 'Copy LaTeX'}
-            </button>
-          </div>
+        <div className="mx-auto flex items-center justify-end gap-2 px-5 py-3" style={{ maxWidth: '960px' }}>
+          <button className="btn-secondary text-sm" onClick={handleLoadExample}>
+            Load Example
+          </button>
+          <button className="btn-primary text-sm" onClick={handleCopyLatex}>
+            {copied ? 'Copied!' : 'Copy LaTeX'}
+          </button>
         </div>
       </header>
 
@@ -760,10 +749,7 @@ function TableModule() {
         <div className="md:hidden mt-4">
           {activeTab === 'input' && (
             <div>
-              <ModeSelector active={inputMode} onChange={setInputMode} />
-              <div className="mt-4">
-                <InputPanel mode={inputMode} {...inputPanelProps} />
-              </div>
+              <InputPanel mode={inputMode} {...inputPanelProps} />
             </div>
           )}
           {activeTab === 'preview' && <PreviewPanel {...previewProps} />}
