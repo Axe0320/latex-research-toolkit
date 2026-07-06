@@ -467,10 +467,10 @@ export default function CitationModule() {
                 )}
                 {src === 'ocr' && (
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+                    <path d="M12 3v3m0 12v3m9-9h-3M6 12H3m14.36-6.36-2.12 2.12M8.76 15.24l-2.12 2.12m0-10.72 2.12 2.12m8.48 8.48 2.12 2.12"/><circle cx="12" cy="12" r="3"/>
                   </svg>
                 )}
-                {src === 'text' ? 'Text' : src === 'doi' ? 'DOI' : src === 'url' ? 'URL' : src === 'file' ? 'File' : 'OCR'}
+                {src === 'text' ? 'Text' : src === 'doi' ? 'DOI' : src === 'url' ? 'URL' : src === 'file' ? 'File' : 'AI解析'}
               </button>
             ))}
           </div>
@@ -617,7 +617,7 @@ export default function CitationModule() {
                   : inputSource === 'file'
                     ? 'Input — File'
                     : inputSource === 'ocr'
-                      ? 'Input — OCR'
+                      ? 'Input — AI解析'
                       : INPUT_LABEL[inputType]
                 }
               </div>

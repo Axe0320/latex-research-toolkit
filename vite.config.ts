@@ -19,6 +19,7 @@ export default defineConfig({
       '/api/stat_test': 'http://127.0.0.1:8803',
       '/api/ocr': 'http://127.0.0.1:8804',
       '/api/resolve-citation': 'http://127.0.0.1:8805',
+      '/api/extract': 'http://127.0.0.1:8806',
     },
   },
 })

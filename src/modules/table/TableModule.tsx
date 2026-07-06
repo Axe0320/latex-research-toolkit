@@ -575,10 +575,19 @@ function TableModule() {
     <div className="table-module min-h-screen" style={{ background: 'var(--bg)' }}>
       {/* Action bar (module title removed — the app shell's own header already
           shows "LaTeX Research Toolkit" + the active tab; repeating a module
-          brand name here just duplicated it) */}
-      <header
-        className="sticky top-0 z-10 border-b"
-        style={{ background: 'var(--card)', borderColor: 'var(--border)', boxShadow: 'var(--shadow-sm)' }}
+          brand name here just duplicated it). Same white background as the
+          app shell's sticky tab bar directly above, with no seam between
+          them, so the two stack into one continuous toolbar (matching
+          figure-modification's flat white bar + hairline border style)
+          rather than two separately-bordered bands. This is the bottom-most
+          bar in that stack, so it alone carries the border/shadow that marks
+          where the toolbar ends and the scrollable page begins. */}
+      <div
+        className="w-full"
+        style={{
+          position: 'sticky', top: 92, zIndex: 30,
+          background: 'white', borderBottom: '1px solid #E5E7EB', boxShadow: 'var(--shadow-sm)',
+        }}
       >
         <div className="mx-auto flex items-center justify-end gap-2 px-5 py-3" style={{ maxWidth: '960px' }}>
           <button className="btn-secondary text-sm" onClick={handleLoadExample}>
@@ -588,10 +597,10 @@ function TableModule() {
             {copied ? 'Copied!' : 'Copy LaTeX'}
           </button>
         </div>
-      </header>
+      </div>
 
       {/* Main */}
-      <main className="mx-auto px-5 py-8" style={{ maxWidth: '960px' }}>
+      <main className="mx-auto px-5 pb-8 pt-2" style={{ maxWidth: '960px' }}>
         {/* Table tab bar */}
         <div style={{
           background: 'var(--card)', border: '1px solid var(--border)',
@@ -765,12 +774,12 @@ function TableModule() {
 }
 
 
-const MODE_OPTIONS: { value: InputMode; icon: string; label: string; desc: string }[] = [
-  { value: 'paste', icon: '✏️', label: 'Paste', desc: 'テキスト貼り付け' },
-  { value: 'upload', icon: '📂', label: 'Upload', desc: 'ファイル読み込み' },
-  { value: 'create', icon: '🆕', label: 'Create', desc: '空テーブル作成' },
-  { value: 'merge', icon: '🔗', label: 'Merge', desc: 'ソース統合' },
-  { value: 'ocr', icon: '🖼️', label: 'OCR', desc: '画像から読み取り' },
+const MODE_OPTIONS: { value: InputMode; icon: string; label: string }[] = [
+  { value: 'paste', icon: '✏️', label: '貼り付け' },
+  { value: 'upload', icon: '📂', label: 'アップロード' },
+  { value: 'create', icon: '🆕', label: '新規作成' },
+  { value: 'merge', icon: '🔗', label: '統合' },
+  { value: 'ocr', icon: '✨', label: 'AI解析' },
 ]
 
 function ModeSelector({ active, onChange }: { active: InputMode; onChange: (m: InputMode) => void }) {
@@ -778,8 +787,8 @@ function ModeSelector({ active, onChange }: { active: InputMode; onChange: (m: I
     <div
       style={{
         display: 'flex',
-        gap: '4px',
-        padding: '4px',
+        gap: '6px',
+        padding: '6px',
         background: 'var(--bg)',
         border: '1px solid var(--border)',
         borderRadius: 'var(--r)',
@@ -787,17 +796,17 @@ function ModeSelector({ active, onChange }: { active: InputMode; onChange: (m: I
         marginBottom: '1.25rem',
       }}
     >
-      {MODE_OPTIONS.map(({ value, icon, label, desc }) => (
+      {MODE_OPTIONS.map(({ value, icon, label }) => (
         <button
           key={value}
           onClick={() => onChange(value)}
           style={{
             flex: 1,
-            padding: '0.5rem 0.5rem',
+            padding: '0.75rem 0.5rem',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '2px',
+            gap: '4px',
             border: 'none',
             borderRadius: 'var(--rs)',
             cursor: 'pointer',
@@ -809,11 +818,8 @@ function ModeSelector({ active, onChange }: { active: InputMode; onChange: (m: I
           onMouseEnter={(e) => { if (active !== value) e.currentTarget.style.background = 'rgba(255,255,255,0.5)' }}
           onMouseLeave={(e) => { if (active !== value) e.currentTarget.style.background = 'transparent' }}
         >
-          <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>{icon}</span>
-          <span style={{ fontSize: '0.8rem', fontWeight: 700, lineHeight: 1.2 }}>{label}</span>
-          <span style={{ fontSize: '0.65rem', color: active === value ? 'var(--accent)' : 'var(--text-light)', lineHeight: 1.2 }}>
-            {desc}
-          </span>
+          <span style={{ fontSize: '1.6rem', lineHeight: 1 }}>{icon}</span>
+          <span style={{ fontSize: '0.9rem', fontWeight: 700, lineHeight: 1.2 }}>{label}</span>
         </button>
       ))}
     </div>

@@ -63,7 +63,6 @@ import FigureList from './components/common/FigureList'
 import ComposeSettings from './components/compose/ComposeSettings'
 import ComposeCanvas from './components/compose/ComposeCanvas'
 import ImportModal from './components/import/ImportModal'
-import { OcrSettings } from '../../shared/ocr'
 
 // ------------------------------------------------------------------ defaults
 const DEFAULT_CM: ConfusionMatrixState = {
@@ -444,7 +443,6 @@ export default function ChartModule() {
   const [downloadFormat, setDownloadFormat] = useState<OutputFormat>('png')
   const [downloadLoading, setDownloadLoading] = useState(false)
   const [showImportModal, setShowImportModal] = useState(false)
-  const [showOcrSettings, setShowOcrSettings] = useState(false)
 
   const selectedFigure = figures.find((f) => f.id === selectedId) ?? figures[0] ?? null
 
@@ -814,13 +812,25 @@ export default function ChartModule() {
     )
   }
 
+  const showFigureTypeNav = appMode === 'edit' && Boolean(selectedFigure)
+
   return (
     <div className="chart-module min-h-screen flex flex-col bg-[#F8FAFC]">
       {/* Action bar (module title removed — the app shell's own header already
-          shows "LaTeX Research Toolkit" + the active tab) */}
+          shows "LaTeX Research Toolkit" + the active tab). White background,
+          same as the app shell's sticky tab bar directly above and the figure
+          -type nav directly below — the three stack into one continuous
+          toolbar (figure-modification's flat white bar + hairline border
+          style) instead of separately-bordered bands. Only the bottom-most
+          bar of the stack (this one, when the figure-type nav below isn't
+          shown) carries the border/shadow. APIキー moved to the app shell's
+          shared header (accessible from every tab, not just Chart). */}
       <header
-        className="bg-white border-b border-gray-200 px-4 flex items-center gap-3 overflow-x-auto"
-        style={{ boxShadow: 'var(--shadow-sm)', height: 52 }}
+        className="px-4 flex items-center gap-3 overflow-x-auto"
+        style={{
+          height: 52, position: 'sticky', top: 92, zIndex: 25, background: 'white',
+          ...(showFigureTypeNav ? {} : { borderBottom: '1px solid #E5E7EB', boxShadow: 'var(--shadow-sm)' }),
+        }}
       >
         <FigureList
           figures={figures}
@@ -842,15 +852,6 @@ export default function ChartModule() {
           図を読み込む
         </button>
 
-        <button
-          onClick={() => setShowOcrSettings(true)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold shrink-0 transition-colors text-sm"
-          style={{ background: '#F0EFFE', color: '#6C63FF', border: '1px solid #DDD6FE' }}
-          title="Vision APIキー設定"
-        >
-          ⚙️ APIキー
-        </button>
-
         <div className="flex rounded-xl overflow-hidden shrink-0" style={{ border: '1px solid #E5E7EB', boxShadow: 'var(--shadow-sm)' }}>
           {(['edit', 'compose'] as AppMode[]).map((mode) => (
             <button
@@ -869,11 +870,15 @@ export default function ChartModule() {
         </div>
       </header>
 
-      {/* 全幅図種タブバー */}
-      {appMode === 'edit' && selectedFigure && (
+      {/* 全幅図種タブバー — bottom-most bar of the stack, so it alone carries
+          the border/shadow (see header comment above). */}
+      {showFigureTypeNav && (
         <nav
-          className="bg-white flex-shrink-0 flex overflow-x-auto"
-          style={{ borderBottom: '1px solid #E5E7EB', scrollbarWidth: 'none' }}
+          className="flex-shrink-0 flex overflow-x-auto"
+          style={{
+            borderBottom: '1px solid #E5E7EB', boxShadow: 'var(--shadow-sm)', scrollbarWidth: 'none',
+            position: 'sticky', top: 144, zIndex: 24, background: 'white',
+          }}
         >
           {FIGURE_TYPES.map((t) => (
             <button
@@ -1088,9 +1093,6 @@ export default function ChartModule() {
           onApply={handleOcrApply}
           onClose={() => setShowImportModal(false)}
         />
-      )}
-      {showOcrSettings && (
-        <OcrSettings onClose={() => setShowOcrSettings(false)} />
       )}
     </div>
   )

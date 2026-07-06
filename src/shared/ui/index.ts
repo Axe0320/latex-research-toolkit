@@ -1,4 +1,3 @@
-export { default as Header } from './Header'
 export { default as TabBar } from './TabBar'
 export type { TabDef } from './TabBar'
 export { default as Card } from './Card'

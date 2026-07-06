@@ -1,5 +1,8 @@
 export { preprocessImageB64 } from './imagePreprocess'
 export { runTesseract } from './tesseractWorker'
 export { runVisionOcr, type VisionProvider, type VisionOcrResult } from './visionOcr'
+export { PROVIDER_COLORS, TESSERACT_COLOR } from './providerColors'
 export { useOcr, type OcrProvider, type OcrStatus, type OcrState } from './useOcr'
+export { runTextExtract, type TextExtractResult } from './textExtract'
+export { useTextExtract, type TextExtractStatus, type TextExtractState } from './useTextExtract'
 export { default as OcrSettings } from './OcrSettings'

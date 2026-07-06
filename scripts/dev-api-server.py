@@ -19,7 +19,7 @@ API_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'api')
 sys.path.insert(0, API_DIR)
 os.chdir(API_DIR)
 
-import render, compose, stat_test, ocr  # noqa: E402
+import render, compose, stat_test, ocr, extract  # noqa: E402
 import importlib
 resolve_citation = importlib.import_module('resolve-citation')
 
@@ -31,6 +31,7 @@ ROUTES = {
     'stat_test': (stat_test.handler, 8803),
     'ocr': (ocr.handler, 8804),
     'resolve-citation': (resolve_citation.handler, 8805),
+    'extract': (extract.handler, 8806),
 }
 
 if __name__ == '__main__':

@@ -290,3 +290,90 @@ def call_vision(image_b64: str, figure_type: str, schema: dict, provider: str, a
         return call_gemini(image_b64, figure_type, schema, api_key)
     else:
         raise ValueError(f'Unknown provider: {provider}')
+
+
+# ------------------------------------------------------------------ text-only extraction
+# Separate from call_claude/call_openai/call_gemini above (image-based OCR,
+# used by Chart) rather than adding an image_b64-is-optional branch to those —
+# this is a simpler request shape (no image content block) and keeps the
+# working image path untouched. Used by Citation/Table's "AI解析": the user
+# pastes text or uploads a file directly instead of photographing it, since in
+# practice nobody screenshots a reference list or a table they already have
+# as text/a file (see docs/decisions-log.md).
+def _build_text_prompt(schema: dict, label: str) -> str:
+    schema_str = json.dumps(schema, ensure_ascii=False, indent=2)
+    return (
+        f'以下のテキストから{label}の情報を抽出し、次のJSONスキーマに従って正確に返してください。\n\n'
+        f'スキーマ（同じ構造で値を埋めてください）:\n{schema_str}\n\n'
+        f'注意:\n'
+        f'- テキストに実際に含まれる情報のみを使用し、推測で埋めないでください\n'
+        f'- スキーマにないキーを追加しないでください\n'
+        f'JSONのみ返してください。前後の説明文は不要です。\n\n'
+        f'--- テキスト ---\n{{text}}'
+    )
+
+
+def call_claude_text(text: str, schema: dict, label: str, api_key: str) -> dict:
+    import anthropic
+    prompt = _build_text_prompt(schema, label).replace('{text}', text)
+    client = anthropic.Anthropic(api_key=api_key)
+    message = client.messages.create(
+        model='claude-opus-4-5-20251101',
+        max_tokens=2048,
+        messages=[{'role': 'user', 'content': [{'type': 'text', 'text': prompt}]}],
+    )
+    return _parse_json_response(message.content[0].text)
+
+
+def call_openai_text(text: str, schema: dict, label: str, api_key: str) -> dict:
+    import urllib.request
+    prompt = _build_text_prompt(schema, label).replace('{text}', text)
+    body = json.dumps({
+        'model': 'gpt-4o',
+        'messages': [{'role': 'user', 'content': prompt}],
+        'max_tokens': 2048,
+    }).encode()
+    req = urllib.request.Request(
+        'https://api.openai.com/v1/chat/completions',
+        data=body,
+        headers={'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'},
+    )
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        result = json.loads(resp.read())
+    return _parse_json_response(result['choices'][0]['message']['content'])
+
+
+def call_gemini_text(text: str, schema: dict, label: str, api_key: str) -> dict:
+    import urllib.request
+    prompt = _build_text_prompt(schema, label).replace('{text}', text)
+    body = json.dumps({
+        'model': 'gemini-3.1-flash-lite',
+        'input': [{'type': 'text', 'text': prompt}],
+    }).encode()
+    req = urllib.request.Request(
+        'https://generativelanguage.googleapis.com/v1beta/interactions',
+        data=body,
+        headers={'Content-Type': 'application/json', 'x-goog-api-key': api_key},
+    )
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        result = json.loads(resp.read())
+    text_out = next(
+        (part.get('text', '')
+         for step in result.get('steps', [])
+         if step.get('type') == 'model_output'
+         for part in step.get('content', [])
+         if isinstance(part, dict) and part.get('type') == 'text'),
+        '',
+    )
+    return _parse_json_response(text_out)
+
+
+def call_vision_text(text: str, schema: dict, label: str, provider: str, api_key: str) -> dict:
+    if provider == 'claude':
+        return call_claude_text(text, schema, label, api_key)
+    elif provider == 'openai':
+        return call_openai_text(text, schema, label, api_key)
+    elif provider == 'gemini':
+        return call_gemini_text(text, schema, label, api_key)
+    else:
+        raise ValueError(f'Unknown provider: {provider}')

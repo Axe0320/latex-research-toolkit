@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import type { FigureType } from '../../types/figures'
 import { useOcr, type OcrProvider } from '../../hooks/useOcr'
 import { preprocessImageB64 } from '../../ocr/imagePreprocess'
+import { PROVIDER_COLORS, TESSERACT_COLOR } from '../../../../shared/ocr'
 import OcrConfirm from './OcrConfirm'
 import PointDigitizer, { type DigitizerSeries } from './PointDigitizer'
 
@@ -39,10 +40,10 @@ const TYPE_JA: Record<FigureType, string> = {
   pie_chart:          '円グラフ',
 }
 
-const VISION_PROVIDERS: { value: Exclude<OcrProvider, 'tesseract'>; label: string; key: string; color: string }[] = [
-  { value: 'claude',  label: 'Claude',  key: 'ocr_anthropic_key', color: '#D97706' },
-  { value: 'openai',  label: 'GPT-4o',  key: 'ocr_openai_key',   color: '#059669' },
-  { value: 'gemini',  label: 'Gemini',  key: 'ocr_google_key',   color: '#2563EB' },
+const VISION_PROVIDERS: { value: Exclude<OcrProvider, 'tesseract'>; label: string; key: string }[] = [
+  { value: 'claude',  label: 'Claude',  key: 'ocr_anthropic_key' },
+  { value: 'openai',  label: 'GPT-4o',  key: 'ocr_openai_key' },
+  { value: 'gemini',  label: 'Gemini',  key: 'ocr_google_key' },
 ]
 
 // all types now use LLM OCR; PointDigitizer kept for Tesseract line/scatter
@@ -279,15 +280,16 @@ export default function ImportModal({ onApply, onClose }: Props) {
                     {VISION_PROVIDERS.map(p => {
                       const keySet = Boolean(localStorage.getItem(p.key)?.trim())
                       const active = provider === p.value
+                      const color = PROVIDER_COLORS[p.value]
                       return (
                         <button
                           key={p.value}
                           onClick={() => setProvider(p.value)}
                           className="text-sm py-2 px-4 rounded-xl font-semibold transition-all flex items-center gap-1.5"
                           style={{
-                            background: active ? p.color : `${p.color}18`,
-                            color: active ? 'white' : p.color,
-                            border: `1.5px solid ${p.color}`,
+                            background: active ? color : `${color}18`,
+                            color: active ? 'white' : color,
+                            border: `1.5px solid ${color}`,
                           }}
                         >
                           {p.label}
@@ -301,9 +303,9 @@ export default function ImportModal({ onApply, onClose }: Props) {
                       onClick={() => setProvider('tesseract')}
                       className="text-sm py-2 px-4 rounded-xl font-semibold transition-all"
                       style={{
-                        background: provider === 'tesseract' ? '#374151' : '#F3F4F6',
-                        color: provider === 'tesseract' ? 'white' : '#6B7280',
-                        border: '1.5px solid ' + (provider === 'tesseract' ? '#374151' : '#E5E7EB'),
+                        background: provider === 'tesseract' ? TESSERACT_COLOR : `${TESSERACT_COLOR}18`,
+                        color: provider === 'tesseract' ? 'white' : TESSERACT_COLOR,
+                        border: `1.5px solid ${TESSERACT_COLOR}`,
                       }}
                     >
                       Tesseract <span style={{ fontSize: 10, opacity: 0.75 }}>(ローカル)</span>

@@ -1,7 +1,8 @@
 import { Suspense, lazy, useCallback, useEffect, useState } from 'react'
-import { Header, TabBar, Toast, useToast, ModuleErrorBoundary, type TabDef } from './shared/ui'
+import { TabBar, Toast, useToast, ModuleErrorBoundary, type TabDef } from './shared/ui'
 import { APP_NAME } from './shared/theme'
 import { onTabRequest } from './shared/navigation'
+import { OcrSettings } from './shared/ocr'
 
 const CitationModule = lazy(() => import('./modules/citation/CitationModule'))
 const TableModule = lazy(() => import('./modules/table/TableModule'))
@@ -9,10 +10,10 @@ const FigureConvertModule = lazy(() => import('./modules/figure-convert/FigureCo
 const ChartModule = lazy(() => import('./modules/chart/ChartModule'))
 
 const TABS: TabDef[] = [
-  { id: 'citation', label: 'Citation' },
-  { id: 'table', label: 'Table' },
-  { id: 'figure', label: 'Figure' },
-  { id: 'chart', label: 'Chart' },
+  { id: 'citation', label: '参考文献', icon: '📚' },
+  { id: 'table', label: '表', icon: '📋' },
+  { id: 'figure', label: '画像変換', icon: '🖼️' },
+  { id: 'chart', label: 'グラフ', icon: '📊' },
 ]
 
 const TAB_TO_PATH: Record<string, string> = {
@@ -57,6 +58,7 @@ export default function App() {
 
   const { message: toastMsg, visible: toastVisible, show: showToast } = useToast()
   const [exporting, setExporting] = useState(false)
+  const [showOcrSettings, setShowOcrSettings] = useState(false)
 
   const handleExportPaperAssets = useCallback(async () => {
     setExporting(true)
@@ -73,20 +75,60 @@ export default function App() {
     }
   }, [showToast])
 
+  // "LaTeX Research Toolkit" -> "LaTeX Research" + accent-colored "Toolkit",
+  // mirroring citation-bibtex-converter's two-tone wordmark (repos/citation-bibtex-converter).
+  const nameWords = APP_NAME.split(' ')
+  const nameLead = nameWords.slice(0, -1).join(' ')
+  const nameAccent = nameWords[nameWords.length - 1]
+
   return (
     <div className="min-h-screen flex flex-col items-center pb-16">
-      <Header title={APP_NAME} subtitle="Citation・Table・Figure・Chart を1つに統合した論文執筆支援ツール" />
-      <div className="flex flex-wrap items-center justify-center gap-3 px-4">
-        <TabBar tabs={TABS} active={activeTab} onChange={handleTabChange} />
-        <button
-          onClick={handleExportPaperAssets}
-          disabled={exporting}
-          title="Citation Library・Tableの表・Chartの図をまとめてZIPでダウンロード"
-          className="text-sm font-semibold px-4 py-1.5 rounded-lg border border-[#E5E7EB] bg-white text-[#6B7280] hover:text-accent hover:border-accent disabled:opacity-50 transition-colors"
+      {/* White, borderless-at-top toolbar surface — deliberately shares its
+          background with each module's own sticky action bar directly below
+          (TableModule/ChartModule) so the two stack into one continuous bar
+          instead of two visually separate bands. Only the bottom-most bar in
+          that stack gets the border/shadow that marks where the toolbar ends
+          and scrollable content begins. The app title now lives here (small,
+          left-aligned) instead of in its own large banner above the bar —
+          that banner was the topmost "floating" element on the page. */}
+      <div
+        className="flex flex-wrap items-center gap-3 px-4 py-3 w-full"
+        style={{ position: 'sticky', top: 0, zIndex: 40, background: 'white' }}
+      >
+        <div
+          className="flex items-center gap-1.5 shrink-0 mr-1"
+          title="Citation・Table・Figure・Chart を1つに統合した論文執筆支援ツール"
         >
-          {exporting ? '書き出し中...' : '📦 Export Paper Assets'}
-        </button>
+          <span style={{ fontSize: '1.35rem' }}>📄</span>
+          <span className="font-extrabold tracking-tight" style={{ fontSize: '1.05rem', color: '#111827' }}>
+            {nameLead} <span style={{ color: '#6C63FF' }}>{nameAccent}</span>
+          </span>
+        </div>
+
+        <div className="flex-1 flex justify-center">
+          <TabBar tabs={TABS} active={activeTab} onChange={handleTabChange} />
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0">
+          <button
+            onClick={() => setShowOcrSettings(true)}
+            title="画像からの読み取り（OCR）で使うVision AIのAPIキーを設定します。Citation・Table・Chartのどのタブからでもここで設定できます。"
+            className="text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+            style={{ background: '#F0EFFE', color: '#6C63FF', border: '1px solid #DDD6FE' }}
+          >
+            ⚙️ APIキー
+          </button>
+          <button
+            onClick={handleExportPaperAssets}
+            disabled={exporting}
+            title="Citation Library・Tableの表・Chartの図をまとめて1つのZIPファイルとしてダウンロードします"
+            className="text-sm font-semibold px-4 py-1.5 rounded-lg border border-[#E5E7EB] bg-white text-[#6B7280] hover:text-accent hover:border-accent disabled:opacity-50 transition-colors"
+          >
+            {exporting ? '書き出し中...' : '📦 まとめてダウンロード'}
+          </button>
+        </div>
       </div>
+      {showOcrSettings && <OcrSettings onClose={() => setShowOcrSettings(false)} />}
 
       <main className="w-full">
         <Suspense fallback={<div className="text-center text-sm text-[#6B7280] py-16">読み込み中...</div>}>
