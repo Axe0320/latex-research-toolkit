@@ -1,5 +1,5 @@
 import type { TableModel, TableRow, TableNote } from '../types'
-import { latexEscape } from '../formatters/shared/latexEscape'
+import { latexEscape } from '../../../../../shared/lib/latexEscape'
 import { formatValue } from '../formatters/shared/formatValue'
 import { type FormattingOptions, DEFAULT_OPTIONS } from '../formatters/options'
 

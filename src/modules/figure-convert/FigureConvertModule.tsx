@@ -7,6 +7,7 @@ import { FormatSelector } from './components/FormatSelector'
 import { ConvertButton } from './components/ConvertButton'
 import { BatchResult } from './components/BatchResult'
 import { ErrorArea } from './components/ErrorArea'
+import { LatexCodeSection } from './components/LatexCodeSection'
 import { useConversion } from './hooks/useConversion'
 import type { OutputFormat } from './types/conversion'
 import { useClipboard } from '../../shared/clipboard'
@@ -180,6 +181,8 @@ export default function FigureConvertModule() {
                 onDeselectAll={deselectAll}
                 onToggleSelect={toggleSelect}
               />
+              <div className="divider" />
+              <LatexCodeSection doneItems={doneItems} />
             </>
           )}
 

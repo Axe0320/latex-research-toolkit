@@ -14,6 +14,7 @@
 | 4 | **Export Paper Assets（統合成果物のZIP出力）** | Citation の `.bib`、Table の LaTeX table コード、Figure の PDF/EPS をまとめて1つの ZIP としてダウンロードする機能。論文執筆の最終成果物を1アクションで得られる、最も価値の高い連携機能 |
 | 5 | **Toast/通知の統一** | B に既存の `components/shared/Toast.tsx` を `shared/ui` に昇格し、4モジュール共通で使用（現状4リポジトリがそれぞれ独自実装） |
 | 6 | **Vision AI OCRパイプラインの共通化** | D専用だったOCR機能を`shared/ocr`に昇格し、Table・Citationからも利用可能にする（§3.3） |
+| 7 | **LaTeX図表引用コードの生成**（Phase 5完了後にユーザー要望で追加） | Figure Converter・Chartの両方で、変換/出力したファイルを`\begin{figure}...\end{figure}`で囲んだLaTeXコードを生成しコピーできる機能。Tableの`latexGenerator`と同じ「データ→LaTeXコード生成」パターンを図に適用したもの（§3.5） |
 
 ## 3.1 クリップボードバスの技術設計
 
@@ -63,3 +64,34 @@ useClipboard(): { item: ClipboardItem | null; send(item: ClipboardItem): void; c
 - **OpenAI（ChatGPT）**：「Sign in with ChatGPT」は2025年5月発表だが、2026年4月時点でも**Codex系ツール内でのみ提供**されており、任意のサードパーティWebアプリ向けの一般公開されたOAuth連携ではない。コミュニティによる非公式な実験的ワークアラウンドは存在するが、本プロジェクトのような公開Webアプリに組み込むのは規約リスクが高く不適切。
 
 **結論**：アカウントログインによるサブスクリプション連携は**両社とも一般的な選択肢として提供されておらず、Anthropicは明示的に禁止している**。現行の「ユーザーが自分のAPIキーを入力し、ブラウザのlocalStorageにのみ保存する」方式（D が既に採用）が、両社の利用規約に沿った唯一の現実的な実装であり、これを維持する。
+
+## 3.5 LaTeX図表引用コードの生成
+
+Phase 5完了後、ユーザーから「TableのLaTeX出力と同じように、FigureやChartで作った図についても`\includegraphics`の引用コードを生成できないか」という要望があり、実装した（連携#7）。
+
+**参考にした出力例**（ユーザー提示）：
+```latex
+\begin{figure*}[tb]
+\begin{center}
+\includegraphics[width=1.0\linewidth]{Approach04.png}
+\caption{Overview of Our Approach}\label{Approach}
+\end{center}
+\end{figure*}
+```
+
+**設計方針**：Tableの`latexGenerator.ts`と全く同じ「データ／設定 → LaTeXコード文字列を返す純粋関数」パターンを踏襲。`shared/latexFigure/generateFigureLatex.ts`として実装し、Figure Converter・Chartの両方から呼び出す。
+
+**オプション項目**（Tableの`FormattingBar`と同程度＝4〜5項目）：
+- 環境：`figure` / `figure*`
+- 配置指定：`tb` / `htbp` / `h` / `t` / `b` / `p`
+- 幅：100% / 80% / 60% / 50% / 40%
+- 幅の基準：`\linewidth` / `\textwidth` / `\columnwidth`
+- 中央揃え方式：`center`環境 / `\centering`
+
+キャプション・ラベルは各図・各変換ファイルごとに個別入力（Figure Converterはバッチ変換に対応しているため、ファイルごとに異なるキャプションを付けられるようにする必要があった）。
+
+**配置**：
+- **Chart**：`FigurePreview`の下に新規`LatexFigureExport`コンポーネントとして追加。デフォルトキャプションは図の`title`パラメータ、デフォルトラベルは`fig:` + タイトルのスラッグ
+- **Figure Converter**：変換完了後の結果一覧の下に新規セクション「4. LaTeX Code」として追加。変換済みファイルごとに個別のキャプション/ラベル入力とコピーボタンを表示（オプションは全ファイル共通）
+
+**副産物**：この実装のためにTableの`lib/table/formatters/shared/latexEscape.ts`（LaTeX特殊文字エスケープ）を`shared/lib/latexEscape.ts`に切り出し、Table・Figure両方から共通利用する形にした。

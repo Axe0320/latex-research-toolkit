@@ -13,7 +13,7 @@ Usage:
 import sys
 import os
 import threading
-from http.server import HTTPServer
+from http.server import ThreadingHTTPServer
 
 API_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'api')
 sys.path.insert(0, API_DIR)
@@ -31,9 +31,15 @@ ROUTES = {
 }
 
 if __name__ == '__main__':
+    # ThreadingHTTPServer, not HTTPServer: Chart fires two /api/render calls
+    # within milliseconds of mounting (debouncedRender + renderAndCache), and
+    # a single-threaded server queues the second one, which Vite's dev proxy
+    # then times out as a 502. (matplotlib's pyplot state isn't thread-safe,
+    # but that's a narrow window acceptable for single-user local dev only —
+    # production Vercel gives each invocation its own isolated process.)
     servers = []
     for name, (handler_cls, port) in ROUTES.items():
-        srv = HTTPServer(('127.0.0.1', port), handler_cls)
+        srv = ThreadingHTTPServer(('127.0.0.1', port), handler_cls)
         threading.Thread(target=srv.serve_forever, daemon=True).start()
         servers.append(srv)
         print(f'/api/{name} -> http://127.0.0.1:{port}')

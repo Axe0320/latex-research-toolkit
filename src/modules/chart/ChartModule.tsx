@@ -58,6 +58,7 @@ import StackedBarEditor from './components/editor/StackedBarEditor'
 import ComboChartEditor from './components/editor/ComboChartEditor'
 import PieChartEditor from './components/editor/PieChartEditor'
 import FigurePreview from './components/preview/FigurePreview'
+import LatexFigureExport from './components/preview/LatexFigureExport'
 import FigureList from './components/common/FigureList'
 import ComposeSettings from './components/compose/ComposeSettings'
 import ComposeCanvas from './components/compose/ComposeCanvas'
@@ -418,6 +419,9 @@ const CLEAR_DATA_BY_TYPE: Partial<Record<FigureType, FigureState['data']>> = {
 }
 
 const genId = () => `fig-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+
+const slugify = (s: string): string =>
+  s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 
 type AppMode = 'edit' | 'compose'
 
@@ -1078,6 +1082,13 @@ export default function ChartModule() {
                 onDownload={handleDownload}
                 onSendToFigureConverter={handleSendToFigureConverter}
               />
+              {selectedFigure && (
+                <LatexFigureExport
+                  filename={`${selectedFigure.params.title || 'figure'}.${downloadFormat}`}
+                  defaultCaption={selectedFigure.params.title}
+                  defaultLabel={`fig:${slugify(selectedFigure.params.title || selectedFigure.type)}`}
+                />
+              )}
             </div>
           ) : (
             <ComposeCanvas figures={figures} layout={layout} previews={previews} />
