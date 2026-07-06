@@ -91,7 +91,9 @@ Phase 5完了後、ユーザーから「TableのLaTeX出力と同じように、
 キャプション・ラベルは各図・各変換ファイルごとに個別入力（Figure Converterはバッチ変換に対応しているため、ファイルごとに異なるキャプションを付けられるようにする必要があった）。
 
 **配置**：
-- **Chart**：`FigurePreview`の下に新規`LatexFigureExport`コンポーネントとして追加。デフォルトキャプションは図の`title`パラメータ、デフォルトラベルは`fig:` + タイトルのスラッグ
-- **Figure Converter**：変換完了後の結果一覧の下に新規セクション「4. LaTeX Code」として追加。変換済みファイルごとに個別のキャプション/ラベル入力とコピーボタンを表示（オプションは全ファイル共通）
+- **Chart**：`FigurePreview`の下に新規`LatexFigureExport`コンポーネントとして追加。デフォルトキャプションは図の`title`パラメータ、デフォルトラベルは`fig:` + タイトルのスラッグ。「図のタイトルをCaptionに使う」チェックボックス（デフォルトON）で、タイトル流用と空欄からの手入力を切り替え可能（Phase 8着手前にユーザー要望で追加）
+- **Figure Converter**：変換完了後の結果一覧の下に新規セクション「4. LaTeX Code」として追加。変換済みファイルごとに個別のキャプション/ラベル入力とコピーボタンを表示（オプションは全ファイル共通）。Figure Convertには「タイトル」に相当する概念が無いため、Captionは常に空欄スタート
 
 **副産物**：この実装のためにTableの`lib/table/formatters/shared/latexEscape.ts`（LaTeX特殊文字エスケープ）を`shared/lib/latexEscape.ts`に切り出し、Table・Figure両方から共通利用する形にした。
+
+**Phase 8着手前に発見・修正したバグ**：`generateFigureLatex.ts`は`caption`のみ`latexEscape()`でエスケープしており、`label`はエスケープされていなかった（Tableの`latexGenerator.ts`は両方エスケープ済みで、この一貫性が崩れていた）。自動生成されるラベル（英数字とハイフンのみ）では問題にならないが、ユーザーが手動でラベルに`_`や`%`を含めると生成LaTeXが壊れるため修正し、回帰テスト（`src/shared/latexFigure/__tests__/generateFigureLatex.test.ts`）を新規追加した。

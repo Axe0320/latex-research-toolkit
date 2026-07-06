@@ -129,3 +129,13 @@ Phase 8に進む前の点検として`npx oxlint`を実行したところ、`Cha
 App.tsxは全4モジュールを同時にマウントしたまま`display:none`で切り替える設計（[01-architecture.md](01-architecture.md) §2.5）のため、ErrorBoundary無しでは1モジュールの未捕捉例外がReactツリー全体をアンマウントし、他3タブも巻き込んでクラッシュする状態だった。`shared/ui/ModuleErrorBoundary`を新設し、既存依存の`Sentry.ErrorBoundary`（`@sentry/react`）をラップして`App.tsx`の4モジュール全てに適用（`03-tech-alignment.md`が元々想定していた「Sentry導入と同時にErrorBoundaryも実質無料で手に入る」という設計をそのまま踏襲）。
 
 Citationモジュールに一時的なクラッシュ用コード（`window.__CRASH_TEST__`フラグで`throw`）を仕込み、Playwrightで実際にCitationタブをクラッシュさせた状態でTableタブへ切り替え、Tableが正常に動作し続けることを確認した上でテスト用コードは完全に削除した。ビルド・テスト240件とも引き続きグリーン。詳細：[03-tech-alignment.md](03-tech-alignment.md)。
+
+### 2026-07-06 — LaTeX図表引用コード生成機能のレビュー：labelエスケープのバグ修正・Chartのキャプション初期値にチェックボックス追加
+
+ユーザーから連携#7（LaTeX図表引用コード生成）の仕様確認を受け、実装を再点検した。
+
+**発見・修正したバグ**：`shared/latexFigure/generateFigureLatex.ts`が`caption`のみ`latexEscape()`していて`label`をエスケープしていなかった（Tableの`latexGenerator.ts`は両方エスケープ済みで、この一貫性が崩れていた）。自動生成されるラベルは英数字とハイフンのみなので問題にならないが、ユーザーが手動でラベルを書き換えて`_`や`%`を含めると（LaTeXユーザーには`fig:result_v2`のような命名が自然にあり得る）、生成コードが壊れる。修正し、回帰テストを新規追加（`generateFigureLatex.ts`自体がPhase 7のテスト対象から漏れていたため、このタイミングで一式追加）。
+
+**LLMによるキャプション自動提案の検討**：ユーザーから「新規追加できるか」と問われ、ChartのVision AI（OCR）呼び出しのプロンプト・スキーマにキャプション提案フィールドを追加すれば、既存のAPIコールに相乗りする形で追加コスト無しに実装可能であることを確認した。ただし対象はOCR経由で作成した図に限られ、Chartの手入力図・Figure Convert全般には適用できず、同一コンポーネント（`LatexFigureExport`）内で挙動が図の作成経路によって変わってしまう一貫性の問題があると判断。また、論文のキャプションは執筆者の主張に紐づく文章であり、画像だけを見たLLMには書けない（当たり障りのない説明文にしかならない）という本質的な限界もあるため、**実装しない**という結論に至った。
+
+**Chartのキャプション初期値の仕様確認と機能追加**：Chart側は元々空欄スタートではなく、図の`title`パラメータ（図自体のタイトル欄）をキャプション初期値として流用していたことが確認過程で判明（`defaultCaption={selectedFigure.params.title}`）。この動作自体は維持しつつ、ユーザー要望で「タイトル流用はデフォルトのままで、空欄から始める選択肢も欲しい」という要件に対応するため、`LatexFigureExport`に「図のタイトルをCaptionに使う」チェックボックス（デフォルトON）を追加。OFFにすると即座にキャプションが空欄になり、以後は図のタイトル変更や図の切り替えで上書きされず、手入力した内容を維持する。ONに戻すと現在のタイトルへ再同期される。Playwrightでチェックのオン/オフ・手入力・再同期の一連の流れを実機で確認した。詳細：[02-integrations.md](02-integrations.md) §3.5。

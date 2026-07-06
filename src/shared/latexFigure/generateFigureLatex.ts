@@ -17,7 +17,7 @@ export function generateFigureLatex(
   const graphic = `\\includegraphics[width=${width}]{${filename}}`
   const captionLabel = [
     caption.trim() ? `\\caption{${latexEscape(caption.trim())}}` : '',
-    label.trim() ? `\\label{${label.trim()}}` : '',
+    label.trim() ? `\\label{${latexEscape(label.trim())}}` : '',
   ].join('')
 
   const body = opts.wrapStyle === 'centering'

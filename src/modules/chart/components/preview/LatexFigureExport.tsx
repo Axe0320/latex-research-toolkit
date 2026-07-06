@@ -13,13 +13,24 @@ interface Props {
 const SELECT_CLASS = 'text-xs px-2 py-1 rounded-lg border border-gray-200 bg-white text-gray-700'
 
 export default function LatexFigureExport({ filename, defaultCaption, defaultLabel }: Props) {
+  const [useTitleAsCaption, setUseTitleAsCaption] = useState(true)
   const [caption, setCaption] = useState(defaultCaption)
   const [label, setLabel] = useState(defaultLabel)
   const [opts, setOpts] = useState<FigureLatexOptions>(DEFAULT_FIGURE_LATEX_OPTIONS)
   const [copied, setCopied] = useState(false)
 
-  useEffect(() => setCaption(defaultCaption), [defaultCaption])
+  // Keeps the caption in sync with the figure's own title (e.g. when
+  // switching figures, or editing the title elsewhere) as long as the user
+  // hasn't opted to start from a blank caption instead.
+  useEffect(() => {
+    if (useTitleAsCaption) setCaption(defaultCaption)
+  }, [defaultCaption, useTitleAsCaption])
   useEffect(() => setLabel(defaultLabel), [defaultLabel])
+
+  const handleToggleUseTitle = (checked: boolean) => {
+    setUseTitleAsCaption(checked)
+    if (!checked) setCaption('')
+  }
 
   const code = generateFigureLatex(filename, caption, label, opts)
 
@@ -33,6 +44,15 @@ export default function LatexFigureExport({ filename, defaultCaption, defaultLab
   return (
     <div className="mt-4 pt-4" data-testid="latex-figure-export" style={{ borderTop: '1px solid #E5E7EB' }}>
       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">LaTeX 図表コード</p>
+
+      <label className="flex items-center gap-1.5 mb-1.5 text-[11px] text-gray-500 select-none">
+        <input
+          type="checkbox"
+          checked={useTitleAsCaption}
+          onChange={(e) => handleToggleUseTitle(e.target.checked)}
+        />
+        図のタイトルをCaptionに使う
+      </label>
 
       <div className="grid grid-cols-2 gap-2 mb-2">
         <input
