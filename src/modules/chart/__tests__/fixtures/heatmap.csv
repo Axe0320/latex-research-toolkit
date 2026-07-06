@@ -1,0 +1,6 @@
+# 相関行列: Feature A–D
+,Feature A,Feature B,Feature C,Feature D
+Feature A,1.00,0.82,0.31,-0.15
+Feature B,0.82,1.00,0.47,-0.08
+Feature C,0.31,0.47,1.00,0.62
+Feature D,-0.15,-0.08,0.62,1.00

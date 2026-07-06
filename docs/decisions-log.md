@@ -95,3 +95,11 @@ Phase 5完了後、ユーザーから「TableのLaTeX出力機能と同様に、
 Phase 6（デザイン統一・モバイル崩れ確認）でPlaywrightにより375px幅を検証中、Citationタブを一度でも開くと（`mountedTabs`によりタブはアンマウントされないためセッション中ずっと）、アプリ共通ヘッダー（TabBar・Export Paper Assetsボタン）のTailwind `px-*` paddingが0になる現象を発見。原因は`citation.css`が唯一`.citation-module`のようなラッパークラスでスコープされておらず、`*, *::before, *::after { margin:0; padding:0; }`という素の（`@layer`未指定の）ユニバーサルリセットをドキュメント全体に適用していたこと。CSS Cascade Layersの仕様上、レイヤー未指定のルールは`@layer utilities`内のTailwindユーティリティより常に優先されるため、指定margin/padding系のユーティリティクラスが軒並み無効化されていた。Table/Figure-Convertは既に`.table-module`/`.figure-convert-module`パターンでスコープ済みだったため影響を受けず、Citationのみの問題だった（Phase 2時点で確立された「各モジュールCSSは`.{module}-module`でスコープする」規約が、最初期に作られたCitationモジュール自身には適用されずに残っていたことが根本原因）。
 
 `CitationModule.tsx`のルートに`.citation-module`クラスを追加し、`citation.css`の`:root`/`body`/`textarea`をそれぞれ`.citation-module`スコープに変更、無条件の`*`リセットは削除（Tailwind4の`@import "tailwindcss"`が同等のリセットを`@layer base`で既に提供しており冗長だった）して解決。この修正で隠れていた別の実バグ（App.tsx共通ヘッダー行が375pxで折り返さない、Chartのツールバーが375pxでページ全体を横に広げる）も連鎖的に発見・修正した。詳細：[phases/phase-6-design-unification.md](phases/phase-6-design-unification.md)実施メモ。
+
+### 2026-07-06 — Phase 7開始前：repos内のテストファイルを事前調査（テストコードではなくサンプルデータのみと判明）
+
+Phase 7開始にあたりユーザーから「repos内にある各種テストファイルが必要ならまずはそちらの本プログラムへの適応を行って」と指示があったため、B/C/Dの3リポジトリを調査。結果、自動テストコード（`*.test.ts`）は存在せず、`test-data/`・`test/`配下に手動QA用のサンプルCSV・サンプル画像・チェックリストのみが存在することを確認した。これらを各モジュールの`__tests__/fixtures/`にコピーし、Phase 7で新規作成するVitestテストの実データフィクスチャとして活用する方針とした。詳細：[phases/phase-7-testing.md](phases/phase-7-testing.md)実施メモ §0。
+
+### 2026-07-06 — Phase 7で発見：`latexEscape`のバックスラッシュ二重エスケープバグを修正
+
+Phase 7でのテスト作成中、`shared/lib/latexEscape`（Table・Figure Convert・Chart全てのLaTeXキャプション/ラベル生成で共用）に潜在バグを発見。逐次`.replace()`方式の実装がバックスラッシュを`\textbackslash{}`に置換した後、後続の`{`/`}`エスケープ処理がその置換結果に含まれる中括弧まで再度エスケープしてしまい、`latexEscape('a\\b')`が`'a\textbackslash\{\}b'`（本来は`'a\textbackslash{}b'`）になっていた——生成されたLaTeXが余計な中括弧文字をPDF上に表示してしまう実害のあるバグ。原因は構造的（どの順序で`.replace()`を並べても、ある特殊文字のエスケープ結果に別の特殊文字が含まれていれば同種の問題が起きる）と判断し、単一の正規表現＋コールバックで元の文字列を一度だけ走査する実装に書き換えて修正。回帰テストを追加した。詳細：[phases/phase-7-testing.md](phases/phase-7-testing.md)実施メモ §2。

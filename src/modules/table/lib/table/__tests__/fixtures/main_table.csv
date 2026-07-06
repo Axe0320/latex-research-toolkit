@@ -1,0 +1,4 @@
+Method,Accuracy,Precision,F1
+Ours,0.924,0.918,0.911
+BERT,0.901,0.895,0.887
+Baseline,0.872,0.864,0.859

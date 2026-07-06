@@ -1,0 +1,5 @@
+# 混合行列: 3クラス分類 (行=True, 列=Predicted)
+,Cat A,Cat B,Cat C
+Cat A,48,2,1
+Cat B,3,44,3
+Cat C,1,2,46

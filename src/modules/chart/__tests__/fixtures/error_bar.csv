@@ -1,0 +1,6 @@
+# エラーバー: 条件別測定値 (mean ± std)
+condition,mean,std
+Baseline,72.3,3.1
+Method A,80.5,2.4
+Method B,85.1,1.8
+Method C,91.4,1.2

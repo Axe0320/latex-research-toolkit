@@ -1,0 +1,6 @@
+# 積み上げ棒グラフ: アカウント種別ごとのボット的単語の有無
+# labels: アカウントカテゴリ
+# seriesN_name: 系列名, seriesN_values: 各カテゴリの値
+labels,human,goodbot,badbot
+Has Bot Words,77,15,3
+No Bot Words,3,25,38

@@ -19,7 +19,7 @@ interface FigureStore {
 }
 
 // Migrate figures saved with old formats (e.g. scatter_plot {x,y} → {series:[{x,y}]})
-function migrateFigures(figures: FigureState[]): FigureState[] {
+export function migrateFigures(figures: FigureState[]): FigureState[] {
   return figures.map((fig) => {
     if (fig.type === 'scatter_plot') {
       const d = fig.data as Record<string, unknown>
