@@ -41,12 +41,10 @@ flowchart TD
     end
 
     subgraph OUT["出力・活用"]
-        direction LR
         PDF([PDF]):::out
         EPS([EPS]):::out
         LTX(["LaTeX 図表引用コード"]):::out
         DL(["ダウンロード<br/>個別 / ZIP一括（まとめて）"]):::out
-        PDF ~~~ EPS ~~~ LTX ~~~ DL
     end
 
     PNG --> DET

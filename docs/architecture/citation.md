@@ -22,10 +22,15 @@ flowchart TD
     classDef out    fill:#3B82F6,color:#fff,stroke:#2563EB
     classDef store  fill:#8B5CF6,color:#fff,stroke:#6D28D9
 
-    T(["Text / File 入力<br/>BibTeX or 引用TXT"]):::input
-    AI(["AI解析 入力<br/>テキスト・ファイル"]):::input
-    D(["DOI 入力"]):::input
-    U(["URL 入力"]):::input
+    subgraph INPUTS[" "]
+        direction LR
+        U(["URL 入力"]):::input
+        D(["DOI 入力"]):::input
+        T(["Text / File 入力<br/>BibTeX or 引用TXT"]):::input
+        AI(["AI解析 入力<br/>テキスト・ファイル"]):::input
+        U ~~~ D ~~~ T ~~~ AI
+    end
+    style INPUTS fill:transparent,stroke:transparent
 
     subgraph RESOLVE["DOI 解決"]
         direction LR
@@ -37,18 +42,15 @@ flowchart TD
 
     CR[Crossref REST API]:::api
 
-    subgraph PROC["変換・整形"]
-        direction LR
+    subgraph PROC["変換・整形・出力"]
         CV["変換エンジン<br/>txt⇄bib · bib→bib · Cleanup"]:::parse
         SF["Citation Style Formatter<br/>9スタイル<br/>IEEE / APA / ACM / Nature<br/>Springer / MLA / Chicago / Harvard / Pandoc"]:::format
-        CV -->|"BibTeX→TXTかつスタイル指定時"| SF
-    end
-
-    subgraph OUT["出力"]
-        direction TB
         OP[BibTeX / TXT]:::out
         CP([Copy]):::out
         DL([Download .bib / .txt]):::out
+        CV -->|"BibTeX→TXTかつスタイル指定時"| SF
+        CV --> OP
+        SF --> OP
         OP --> CP
         OP --> DL
     end
@@ -62,8 +64,6 @@ flowchart TD
     CR --> CV
     T --> CV
     AI --> CV
-    CV --> OP
-    SF --> OP
     CV -->|"+ Add to Library"| LIB
     LIB -->|"Export Paper Assets"| DL
 ```
