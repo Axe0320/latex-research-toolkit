@@ -92,20 +92,20 @@ export default function App() {
           left-aligned) instead of in its own large banner above the bar —
           that banner was the topmost "floating" element on the page. */}
       <div
-        className="flex flex-wrap items-center gap-3 px-4 py-3 w-full"
-        style={{ position: 'sticky', top: 0, zIndex: 40, background: 'white' }}
+        className="flex items-center gap-3 px-4 py-3 w-full overflow-x-auto"
+        style={{ position: 'sticky', top: 0, zIndex: 40, background: 'white', scrollbarWidth: 'none' }}
       >
         <div
           className="flex items-center gap-1.5 shrink-0 mr-1"
           title="Citation・Table・Figure・Chart を1つに統合した論文執筆支援ツール"
         >
           <span style={{ fontSize: '1.35rem' }}>📄</span>
-          <span className="font-extrabold tracking-tight" style={{ fontSize: '1.05rem', color: '#111827' }}>
+          <span className="font-extrabold tracking-tight whitespace-nowrap" style={{ fontSize: '1.05rem', color: '#111827' }}>
             {nameLead} <span style={{ color: '#6C63FF' }}>{nameAccent}</span>
           </span>
         </div>
 
-        <div className="flex-1 flex justify-center">
+        <div className="flex-1 flex justify-center shrink-0">
           <TabBar tabs={TABS} active={activeTab} onChange={handleTabChange} />
         </div>
 
@@ -113,7 +113,7 @@ export default function App() {
           <button
             onClick={() => setShowOcrSettings(true)}
             title="画像からの読み取り（OCR）で使うVision AIのAPIキーを設定します。Citation・Table・Chartのどのタブからでもここで設定できます。"
-            className="text-base font-bold px-5 py-2.5 rounded-lg transition-colors flex items-center gap-1.5"
+            className="text-base font-bold px-5 py-2.5 rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0"
             style={{ background: '#F0EFFE', color: '#6C63FF', border: '1px solid #DDD6FE' }}
           >
             ⚙️ APIキー
@@ -122,7 +122,7 @@ export default function App() {
             onClick={handleExportPaperAssets}
             disabled={exporting}
             title="Citation Library・Tableの表・Chartの図をまとめて1つのZIPファイルとしてダウンロードします"
-            className="text-base font-bold px-5 py-2.5 rounded-lg border border-[#E5E7EB] bg-white text-[#6B7280] hover:text-accent hover:border-accent disabled:opacity-50 transition-colors"
+            className="text-base font-bold px-5 py-2.5 rounded-lg border border-[#E5E7EB] bg-white text-[#6B7280] hover:text-accent hover:border-accent disabled:opacity-50 transition-colors whitespace-nowrap shrink-0"
           >
             {exporting ? '書き出し中...' : '📦 まとめてダウンロード'}
           </button>
