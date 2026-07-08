@@ -23,12 +23,10 @@ flowchart TD
     classDef store  fill:#8B5CF6,color:#fff,stroke:#6D28D9
 
     subgraph INPUTS["入力"]
-        direction LR
         U(["URL 入力"]):::input
         D(["DOI 入力"]):::input
         T(["Text / File 入力<br/>BibTeX or 引用TXT"]):::input
         AI(["AI解析 入力<br/>テキスト・ファイル"]):::input
-        U ~~~ D ~~~ T ~~~ AI
     end
 
     subgraph RESOLVE["DOI 解決"]

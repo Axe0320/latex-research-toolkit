@@ -101,22 +101,33 @@ flowchart LR
     S3 --> E1
 ```
 
-### データモデル（FigureFileItem の状態遷移）
+### データモデル
 
 ```mermaid
-stateDiagram-v2
-    [*] --> pending: ファイル追加
-    pending --> converting: 変換開始（Promise.all）
-    converting --> done: 変換成功
-    converting --> error: 変換失敗
-    done --> [*]
-    error --> [*]
-
-    note right of error
-        1ファイルの失敗は他ファイルの
-        変換を止めない
-    end note
+classDiagram
+    class FigureFileItem {
+        +string id
+        +File file
+        +string name
+        +number size
+        +InputFormat format
+        +string previewUrl
+        +FigureItemStatus status
+        +Blob resultBlob
+        +string resultFileName
+        +string error
+    }
+    class FigureItemStatus {
+        <<enumeration>>
+        pending
+        converting
+        done
+        error
+    }
+    FigureFileItem --> FigureItemStatus
 ```
+
+変換は `pending → converting → done / error` の順に遷移する（Promise.all による並列変換のため、1ファイルの失敗は他ファイルの変換を止めない）。
 
 ### 主要ファイル
 
