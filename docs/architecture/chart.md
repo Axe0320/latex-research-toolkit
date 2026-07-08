@@ -13,6 +13,7 @@
 ### システム全体
 
 ```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 30, 'rankSpacing': 35}}}%%
 flowchart TD
     classDef input  fill:#6C63FF,color:#fff,stroke:#4a44cc
     classDef api    fill:#F59E0B,color:#fff,stroke:#D97706
@@ -20,19 +21,15 @@ flowchart TD
     classDef out    fill:#3B82F6,color:#fff,stroke:#2563EB
     classDef store  fill:#8B5CF6,color:#fff,stroke:#6D28D9
 
-    subgraph IN["① 入力"]
-        M(["手入力 / テキスト貼り付け"]):::input
-        C(["CSV アップロード"]):::input
-        SK(["sklearn 貼り付け"]):::input
-        OCR(["OCR / AI解析<br/>Vision AI・Tesseract.js"]):::input
-    end
+    M(["手入力 / テキスト貼り付け"]):::input
+    C(["CSV アップロード"]):::input
+    SK(["sklearn 貼り付け"]):::input
+    OCR(["OCR / AI解析<br/>Vision AI・Tesseract.js"]):::input
 
-    subgraph STORE["② 状態管理"]
-        ZU[("Zustand Store")]:::store
-        IDB[("IndexedDB キャッシュ")]:::store
-    end
+    ZU[("Zustand Store")]:::store
+    IDB[("IndexedDB キャッシュ")]:::store
 
-    subgraph BACKEND["③ バックエンド（Vercel Functions）"]
+    subgraph BACKEND["バックエンド（Vercel Functions）"]
         RND["POST /api/render"]:::api
         CMP["POST /api/compose"]:::api
         OCR2["POST /api/ocr"]:::api
@@ -42,13 +39,11 @@ flowchart TD
         CMP --> LIB
     end
 
-    subgraph OUT["④ 出力"]
-        PNG([PNG]):::out
-        SVG([SVG]):::out
-        PDF([PDF]):::out
-        EPS([EPS]):::out
-        FIGCONV(["Figure Converter へ送信"]):::out
-    end
+    PNG([PNG]):::out
+    SVG([SVG]):::out
+    PDF([PDF]):::out
+    EPS([EPS]):::out
+    FIGCONV(["Figure Converter へ送信"]):::out
 
     M & C & SK --> ZU
     OCR --> OCR2 --> ZU
@@ -60,6 +55,8 @@ flowchart TD
     IDB --> PNG --> FIGCONV
     RND --> SVG & PDF & EPS
 ```
+
+複数色のノード（オレンジのAPI呼び出し・緑のレンダラー）を1つの「バックエンド」としてまとめる意味がある箇所のみ、枠を残している。他の箇所は色分けだけで区別できるため枠を使っていない（`docs/architecture/README.md` の凡例を参照）。
 
 ### OCRパイプライン
 

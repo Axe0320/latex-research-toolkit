@@ -13,39 +13,34 @@
 ### システム全体
 
 ```mermaid
-%%{init: {'flowchart': {'nodeSpacing': 30, 'rankSpacing': 55}}}%%
+%%{init: {'flowchart': {'nodeSpacing': 20, 'rankSpacing': 30}}}%%
 flowchart TD
     classDef input fill:#6C63FF,color:#fff,stroke:#4a44cc
     classDef conv  fill:#10B981,color:#fff,stroke:#059669
     classDef out   fill:#3B82F6,color:#fff,stroke:#2563EB
 
-    subgraph IN["入力"]
-        PNG([PNG / JPG / JPEG]):::input
-        SVG([SVG]):::input
-        CHARTIN(["Chart から送信"]):::input
-    end
+    PNG([PNG / JPG / JPEG]):::input
+    SVG([SVG]):::input
+    CHARTIN(["Chart から送信"]):::input
 
-    subgraph HOOK["useConversion フック"]
+    subgraph HOOK[" "]
+        direction LR
         DET["detectInputFormat<br/>MIME / 拡張子判定"]:::conv
         STATE["FigureFileItem[]<br/>pending→converting→done/error"]:::conv
         PAR["Promise.all<br/>並列変換（バッチ）"]:::conv
         DET --> STATE --> PAR
     end
+    style HOOK fill:transparent,stroke:transparent
 
-    subgraph CONV["変換エンジン"]
-        direction LR
-        P1["imageToPdf"]:::conv
-        P2["svgToPdfVector<br/>jsPDF + svg2pdf.js"]:::conv
-        E1["imageToEps<br/>ASCIIHex エンコード"]:::conv
-        E2["svgToEps<br/>Canvas 2x ラスタライズ"]:::conv
-    end
+    P1["imageToPdf"]:::conv
+    P2["svgToPdfVector<br/>jsPDF + svg2pdf.js"]:::conv
+    E1["imageToEps<br/>ASCIIHex エンコード"]:::conv
+    E2["svgToEps<br/>Canvas 2x ラスタライズ"]:::conv
 
-    subgraph OUT["出力・活用"]
-        PDF([PDF]):::out
-        EPS([EPS]):::out
-        LTX(["LaTeX 図表引用コード"]):::out
-        DL(["ダウンロード<br/>個別 / ZIP一括（まとめて）"]):::out
-    end
+    PDF([PDF]):::out
+    EPS([EPS]):::out
+    LTX(["LaTeX 図表引用コード"]):::out
+    DL(["ダウンロード<br/>個別 / ZIP一括（まとめて）"]):::out
 
     PNG --> DET
     SVG --> DET
@@ -105,22 +100,33 @@ flowchart LR
     S3 --> E1
 ```
 
-### データモデル（FigureFileItem の状態遷移）
+### データモデル（FigureFileItem）
 
 ```mermaid
-stateDiagram-v2
-    [*] --> pending: ファイル追加
-    pending --> converting: 変換開始（Promise.all）
-    converting --> done: 変換成功
-    converting --> error: 変換失敗
-    done --> [*]
-    error --> [*]
-
-    note right of error
-        1ファイルの失敗は他ファイルの
-        変換を止めない
-    end note
+classDiagram
+    class FigureFileItem {
+        +string id
+        +File file
+        +string name
+        +number size
+        +InputFormat format
+        +string previewUrl
+        +FigureItemStatus status
+        +Blob resultBlob
+        +string resultFileName
+        +string error
+    }
+    class FigureItemStatus {
+        <<enumeration>>
+        pending
+        converting
+        done
+        error
+    }
+    FigureFileItem --> FigureItemStatus : status
 ```
+
+`status` は `pending → converting → done / error` と遷移する。1ファイルの変換失敗（`error`）が他ファイルの変換を止めることはない（`Promise.all` ではなく個別ステータス管理のため）。
 
 ### 主要ファイル
 

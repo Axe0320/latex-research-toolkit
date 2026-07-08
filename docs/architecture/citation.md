@@ -13,7 +13,7 @@
 ### システム全体
 
 ```mermaid
-%%{init: {'flowchart': {'nodeSpacing': 30, 'rankSpacing': 60}}}%%
+%%{init: {'flowchart': {'nodeSpacing': 25, 'rankSpacing': 30}}}%%
 flowchart TD
     classDef input  fill:#6C63FF,color:#fff,stroke:#4a44cc
     classDef api    fill:#F59E0B,color:#fff,stroke:#D97706
@@ -22,51 +22,47 @@ flowchart TD
     classDef out    fill:#3B82F6,color:#fff,stroke:#2563EB
     classDef store  fill:#8B5CF6,color:#fff,stroke:#6D28D9
 
+    U(["URL 入力"]):::input
+    D(["DOI 入力"]):::input
     T(["Text / File 入力<br/>BibTeX or 引用TXT"]):::input
     AI(["AI解析 入力<br/>テキスト・ファイル"]):::input
-    D(["DOI 入力"]):::input
-    U(["URL 入力"]):::input
 
-    subgraph RESOLVE["DOI 解決（URL から DOI を特定）"]
-        direction TB
+    subgraph RESOLVE[" "]
+        direction LR
         RX["URL 正規表現<br/>doi.org / ACM / Springer"]:::api
         META[HTML メタタグ]:::api
         PROXY["/api/resolve-citation<br/>サーバーサイド解決"]:::api
         RX -->|"DOI なし"| META --> PROXY
     end
+    style RESOLVE fill:transparent,stroke:transparent
 
     CR[Crossref REST API]:::api
+    CV["変換エンジン<br/>txt⇄bib · bib→bib · Cleanup"]:::parse
+    SF["Citation Style Formatter<br/>9スタイル<br/>IEEE / APA / ACM / Nature<br/>Springer / MLA / Chicago / Harvard / Pandoc"]:::format
 
-    subgraph PROC["変換・整形"]
-        direction TB
-        CV["変換エンジン<br/>txt⇄bib · bib→bib · Cleanup"]:::parse
-        SF["Citation Style Formatter<br/>9スタイル<br/>IEEE / APA / ACM / Nature<br/>Springer / MLA / Chicago / Harvard / Pandoc"]:::format
-        CV -->|"BibTeX→TXTかつスタイル指定時"| SF
-    end
-
-    subgraph OUT["出力"]
-        direction TB
-        OP[BibTeX / TXT]:::out
-        CP([Copy]):::out
-        DL([Download .bib / .txt]):::out
-        OP --> CP
-        OP --> DL
-    end
+    OP[BibTeX / TXT]:::out
+    CP([Copy]):::out
+    DL([Download .bib / .txt]):::out
 
     LIB[("BibTeX Library<br/>IndexedDB")]:::store
 
     U --> RX
-    D --> CR
     RX -->|"DOI あり"| CR
+    D --> CR
     PROXY --> CR
     CR --> CV
     T --> CV
     AI --> CV
+    CV -->|"BibTeX→TXTかつスタイル指定時"| SF
     CV --> OP
     SF --> OP
+    OP --> CP
+    OP --> DL
     CV -->|"+ Add to Library"| LIB
     LIB -->|"Export Paper Assets"| DL
 ```
+
+「DOI 解決」のURL正規表現→HTMLメタタグ→サーバーサイド解決の3ステップは、入口と出口が1つずつしかない単純な直列処理のため、横並び（`direction LR`）にして縦幅を節約している。
 
 ### 変換エンジン詳細
 
