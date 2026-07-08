@@ -113,7 +113,7 @@ export default function App() {
           <button
             onClick={() => setShowOcrSettings(true)}
             title="画像からの読み取り（OCR）で使うVision AIのAPIキーを設定します。Citation・Table・Chartのどのタブからでもここで設定できます。"
-            className="text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+            className="text-base font-bold px-5 py-2.5 rounded-lg transition-colors flex items-center gap-1.5"
             style={{ background: '#F0EFFE', color: '#6C63FF', border: '1px solid #DDD6FE' }}
           >
             ⚙️ APIキー
@@ -122,7 +122,7 @@ export default function App() {
             onClick={handleExportPaperAssets}
             disabled={exporting}
             title="Citation Library・Tableの表・Chartの図をまとめて1つのZIPファイルとしてダウンロードします"
-            className="text-sm font-semibold px-4 py-1.5 rounded-lg border border-[#E5E7EB] bg-white text-[#6B7280] hover:text-accent hover:border-accent disabled:opacity-50 transition-colors"
+            className="text-base font-bold px-5 py-2.5 rounded-lg border border-[#E5E7EB] bg-white text-[#6B7280] hover:text-accent hover:border-accent disabled:opacity-50 transition-colors"
           >
             {exporting ? '書き出し中...' : '📦 まとめてダウンロード'}
           </button>

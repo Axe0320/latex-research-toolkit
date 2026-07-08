@@ -29,3 +29,6 @@ npm-debug.log*
 
 # Claude Code local session state
 .claude/
+
+# Ad-hoc local review screenshots (not the curated README images in docs/screenshots/)
+/screenshots/
