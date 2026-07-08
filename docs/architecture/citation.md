@@ -30,19 +30,15 @@ flowchart TD
     end
 
     subgraph RESOLVE["DOI 解決"]
-        direction TD
-        subgraph RESOLVE_ROW1[" "]
-            direction LR
-            RX["URL 正規表現<br/>doi.org / ACM / Springer"]:::api
-            META[HTML メタタグ]:::api
-            PROXY["/api/resolve-citation<br/>サーバーサイド解決"]:::api
-            RX -->|"DOI なし"| META --> PROXY
-        end
-        DOI(["DOI"]):::api
+        direction LR
+        RX["URL 正規表現<br/>doi.org / ACM / Springer"]:::api
+        META[HTML メタタグ]:::api
+        PROXY["/api/resolve-citation<br/>サーバーサイド解決"]:::api
+        DOI(["解決済み<br/>DOI"]):::api
+        RX -->|"DOI なし"| META --> PROXY
         RX -->|"DOI あり"| DOI
         PROXY --> DOI
     end
-    style RESOLVE_ROW1 fill:transparent,stroke:transparent
 
     CR[Crossref REST API]:::api
 
