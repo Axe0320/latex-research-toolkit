@@ -34,7 +34,10 @@ flowchart TD
         RX["URL 正規表現<br/>doi.org / ACM / Springer"]:::api
         META[HTML メタタグ]:::api
         PROXY["/api/resolve-citation<br/>サーバーサイド解決"]:::api
+        DOI(("DOI")):::api
         RX -->|"DOI なし"| META --> PROXY
+        RX -->|"DOI あり"| DOI
+        PROXY --> DOI
     end
 
     CR[Crossref REST API]:::api
@@ -58,8 +61,7 @@ flowchart TD
 
     U --> RX
     D --> CR
-    RX -->|"DOI あり"| CR
-    PROXY --> CR
+    DOI --> CR
     CR --> CV
     T --> CV
     AI --> CV
