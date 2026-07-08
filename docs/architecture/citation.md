@@ -2,9 +2,18 @@
 
 [← アーキテクチャ一覧](README.md) | [← README.md](../../README.md)
 
+### 主な機能・技術
+
+- Text / DOI / URL / File / AI解析の5つの入力方式に対応。DOI・URLからは Crossref REST API で引用メタデータを自動取得する
+- 引用テキストの形式自動判定は16形式（日本語4形式含む）のパーサーレジストリで実現し、優先度順に判定を試行する
+- BibTeX 変換後は9つの主要引用スタイル（IEEE / APA / ACM / Nature / Springer / MLA / Chicago / Harvard / Pandoc）へ相互変換できる
+- 変換したエントリは BibTeX Library（IndexedDB）に蓄積し、セッションをまたいで一括ダウンロードできる
+- フロントエンドのみで変換処理が完結し、バックエンドは DOI/URL 解決用の軽量プロキシ（`/api/resolve-citation`）のみを持つ
+
 ### システム全体
 
 ```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 30, 'rankSpacing': 60}}}%%
 flowchart TD
     classDef input  fill:#6C63FF,color:#fff,stroke:#4a44cc
     classDef api    fill:#F59E0B,color:#fff,stroke:#D97706
@@ -13,32 +22,29 @@ flowchart TD
     classDef out    fill:#3B82F6,color:#fff,stroke:#2563EB
     classDef store  fill:#8B5CF6,color:#fff,stroke:#6D28D9
 
-    subgraph IN["① 入力（Text / DOI / URL / File / AI解析）"]
-        direction TB
-        T(["Text / File<br/>BibTeX or 引用TXT"]):::input
-        D(["DOI"]):::input
-        U(["URL"]):::input
-        AI(["AI解析<br/>テキスト・ファイル"]):::input
-    end
+    T(["Text / File 入力<br/>BibTeX or 引用TXT"]):::input
+    AI(["AI解析 入力<br/>テキスト・ファイル"]):::input
+    D(["DOI 入力"]):::input
+    U(["URL 入力"]):::input
 
-    subgraph RESOLVE["② DOI 解決"]
+    subgraph RESOLVE["DOI 解決（URL から DOI を特定）"]
         direction TB
         RX["URL 正規表現<br/>doi.org / ACM / Springer"]:::api
         META[HTML メタタグ]:::api
         PROXY["/api/resolve-citation<br/>サーバーサイド解決"]:::api
-        CR[Crossref REST API]:::api
-        RX -->|"DOI あり"| CR
-        RX -->|"DOI なし"| META --> PROXY --> CR
+        RX -->|"DOI なし"| META --> PROXY
     end
 
-    subgraph PROC["③ 変換・整形"]
+    CR[Crossref REST API]:::api
+
+    subgraph PROC["変換・整形"]
         direction TB
         CV["変換エンジン<br/>txt⇄bib · bib→bib · Cleanup"]:::parse
-        SF["Citation Style Formatter<br/>9スタイル — IEEE / APA / ACM<br/>Nature / Springer / MLA / Chicago / Harvard / Pandoc"]:::format
-        CV -->|"BibTeX→TXT + スタイル指定時"| SF
+        SF["Citation Style Formatter<br/>9スタイル<br/>IEEE / APA / ACM / Nature<br/>Springer / MLA / Chicago / Harvard / Pandoc"]:::format
+        CV -->|"BibTeX→TXTかつスタイル指定時"| SF
     end
 
-    subgraph OUT["④ 出力"]
+    subgraph OUT["出力"]
         direction TB
         OP[BibTeX / TXT]:::out
         CP([Copy]):::out
@@ -49,11 +55,13 @@ flowchart TD
 
     LIB[("BibTeX Library<br/>IndexedDB")]:::store
 
-    T --> CV
-    D --> CR
     U --> RX
-    AI --> CV
+    D --> CR
+    RX -->|"DOI あり"| CR
+    PROXY --> CR
     CR --> CV
+    T --> CV
+    AI --> CV
     CV --> OP
     SF --> OP
     CV -->|"+ Add to Library"| LIB
@@ -107,6 +115,36 @@ flowchart LR
     B1a --> OUT
     B2b --> OUT
     B3b --> OUT
+```
+
+### データモデル
+
+```mermaid
+classDiagram
+    class CanonicalCitation {
+        +string authorRaw
+        +string title
+        +string year
+        +string journal
+        +string volume
+        +string number
+        +string pages
+        +string doi
+    }
+    class LibraryEntry {
+        +string key
+        +string type
+        +string raw
+        +number addedAt
+    }
+    class BibTeXLibrary {
+        +LibraryEntry[] entries
+        +save(entry)
+        +mergeReplace(entries)
+        +checkBeforeSave(entry)
+    }
+    BibTeXLibrary "1" --> "*" LibraryEntry
+    CanonicalCitation ..> LibraryEntry : buildBibTeX() でシリアライズ
 ```
 
 ### 主要ファイル

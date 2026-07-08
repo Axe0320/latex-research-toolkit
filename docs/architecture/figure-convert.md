@@ -2,31 +2,37 @@
 
 [← アーキテクチャ一覧](README.md) | [← README.md](../../README.md)
 
+### 主な機能・技術
+
+- PNG / JPG / SVG を `\includegraphics` 向けの PDF / EPS に変換。複数ファイルの一括バッチ変換に対応する
+- SVG はベクターのまま埋め込み（拡大劣化なし）、EPS 変換のみ Canvas でラスタライズしてから PostScript エンコードする
+- 変換後のファイルごとに `\begin{figure}...\end{figure}` の LaTeX 引用コードを個別生成できる
+- Chart モジュールが生成した画像をそのまま受け取れる（ダウンロード→再アップロード不要）
+- フロントエンドのみで変換が完結し、バックエンドは不要
+
 ### システム全体
 
 ```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 30, 'rankSpacing': 55}}}%%
 flowchart TD
     classDef input fill:#6C63FF,color:#fff,stroke:#4a44cc
     classDef conv  fill:#10B981,color:#fff,stroke:#059669
-    classDef out   fill:#EF4444,color:#fff,stroke:#DC2626
-    classDef dl    fill:#3B82F6,color:#fff,stroke:#2563EB
-    classDef hook  fill:#F59E0B,color:#fff,stroke:#D97706
+    classDef out   fill:#3B82F6,color:#fff,stroke:#2563EB
 
-    subgraph IN["① 入力"]
-        PNG([PNG]):::input
-        JPG([JPG / JPEG]):::input
+    subgraph IN["入力"]
+        PNG([PNG / JPG / JPEG]):::input
         SVG([SVG]):::input
-        CHARTIN(["Chart から送信<br/>Send to Figure Converter"]):::input
+        CHARTIN(["Chart から送信"]):::input
     end
 
-    subgraph HOOK["useConversion hook"]
-        DET["detectInputFormat<br/>MIME / 拡張子判定"]:::hook
-        STATE["FigureFileItem[]<br/>pending→converting→done/error"]:::hook
-        PAR["Promise.all<br/>並列変換（バッチ）"]:::hook
+    subgraph HOOK["useConversion フック"]
+        DET["detectInputFormat<br/>MIME / 拡張子判定"]:::conv
+        STATE["FigureFileItem[]<br/>pending→converting→done/error"]:::conv
+        PAR["Promise.all<br/>並列変換（バッチ）"]:::conv
         DET --> STATE --> PAR
     end
 
-    subgraph CONV["② 変換エンジン"]
+    subgraph CONV["変換エンジン"]
         direction LR
         P1["imageToPdf"]:::conv
         P2["svgToPdfVector<br/>jsPDF + svg2pdf.js"]:::conv
@@ -34,25 +40,28 @@ flowchart TD
         E2["svgToEps<br/>Canvas 2x ラスタライズ"]:::conv
     end
 
-    subgraph OUT["③ 出力"]
+    subgraph OUT["出力・活用"]
         PDF([PDF]):::out
         EPS([EPS]):::out
         LTX(["LaTeX 図表引用コード"]):::out
+        DL(["ダウンロード<br/>個別 / ZIP一括（まとめて）"]):::out
     end
 
-    subgraph DL["④ ダウンロード"]
-        INDIV([個別 ⬇]):::dl
-        ZIP([ZIP 一括 / まとめてダウンロード]):::dl
-    end
-
-    PNG & JPG & CHARTIN --> DET
+    PNG --> DET
     SVG --> DET
-    PAR --> P1 & P2
-    PAR --> E1 & E2
-    P1 & P2 --> PDF
-    E1 & E2 --> EPS
-    PDF & EPS --> LTX
-    PDF & EPS --> INDIV & ZIP
+    CHARTIN --> DET
+    PAR --> P1
+    PAR --> P2
+    PAR --> E1
+    PAR --> E2
+    P1 --> PDF
+    P2 --> PDF
+    E1 --> EPS
+    E2 --> EPS
+    PDF --> LTX
+    PDF --> DL
+    EPS --> LTX
+    EPS --> DL
 ```
 
 ### 変換パス詳細
@@ -94,6 +103,23 @@ flowchart LR
     R1 --> E1
     V3 --> P1
     S3 --> E1
+```
+
+### データモデル（FigureFileItem の状態遷移）
+
+```mermaid
+stateDiagram-v2
+    [*] --> pending: ファイル追加
+    pending --> converting: 変換開始（Promise.all）
+    converting --> done: 変換成功
+    converting --> error: 変換失敗
+    done --> [*]
+    error --> [*]
+
+    note right of error
+        1ファイルの失敗は他ファイルの
+        変換を止めない
+    end note
 ```
 
 ### 主要ファイル

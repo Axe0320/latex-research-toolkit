@@ -2,24 +2,33 @@
 
 [← アーキテクチャ一覧](README.md) | [← README.md](../../README.md)
 
+### 主な機能・技術
+
+- 貼り付け / アップロード / 新規作成 / 統合 / AI解析の5つの入力方式。TSV・CSV・Excelコピー・Markdown表・sklearnのclassification reportを自動判定する
+- `TableModel` を唯一の状態源（Single Source of Truth）とし、Preview・Edit・LaTeX出力が常に同期する
+- セル単位のスタイル編集・範囲選択・注釈（`\tnote{}` / `\footnotemark`）、複数ソースの統合（行/列追加・置換）に対応
+- 複数表をタブ管理し、IndexedDB に自動永続化（300msデバウンス）
+- フロントエンドのみで変換が完結し、バックエンドは不要
+
 ### システム全体
 
 ```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 30, 'rankSpacing': 60}}}%%
 flowchart TD
     classDef input fill:#6C63FF,color:#fff,stroke:#4a44cc
     classDef process fill:#10B981,color:#fff,stroke:#059669
-    classDef model fill:#F59E0B,color:#fff,stroke:#D97706
-    classDef output fill:#EF4444,color:#fff,stroke:#DC2626
-    classDef ui fill:#3B82F6,color:#fff,stroke:#2563EB
+    classDef model fill:#8B5CF6,color:#fff,stroke:#6D28D9
+    classDef output fill:#3B82F6,color:#fff,stroke:#2563EB
+    classDef ui fill:#60A5FA,color:#fff,stroke:#2563EB
 
     A(["貼り付け<br/>TSV / CSV / Excel / Markdown"]):::input
     B(["アップロード<br/>.xlsx / .csv / .tsv"]):::input
     C(["新規作成<br/>空テーブル"]):::input
     D(["統合<br/>複数ソース"]):::input
-    AI(["AI解析<br/>テキスト・ファイル"]):::input
 
     E["detect<br/>フォーマット自動判定"]:::process
     F["parse<br/>CSV / TSV / Excel / Classification Report"]:::process
+    AI(["AI解析<br/>テキスト・ファイル"]):::input
     G["normalize<br/>列数補正・数値判定"]:::process
 
     H[("TableModel<br/>複数表管理・IndexedDB永続化")]:::model
@@ -31,9 +40,10 @@ flowchart TD
     L(["Edit<br/>セル編集・注釈・スタイル"]):::ui
     M(["LaTeX Output<br/>現在の表 / 全表"]):::output
 
-    A & B --> E --> F --> G
+    A & B --> E --> F
+    AI ---->|"parseInput()を再利用"| F
+    F --> G
     C & D --> G
-    AI -->|"parseInput() を再利用"| F
     G --> H
     H --> I --> J
     H --> K
@@ -59,7 +69,7 @@ flowchart LR
     R --> P --> N --> T --> F --> G --> O
 ```
 
-### TableModel（Single Source of Truth）
+### データモデル（TableModel）
 
 ```mermaid
 classDiagram

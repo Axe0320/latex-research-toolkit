@@ -2,6 +2,14 @@
 
 [← アーキテクチャ一覧](README.md) | [← README.md](../../README.md)
 
+### 主な機能・技術
+
+- 16種類の学術図（棒グラフ・散布図・ROC曲線・混合行列・学習曲線 等）を生成・編集できる
+- 手入力 / CSVアップロード / sklearn出力貼り付け / OCR・AI解析の4系統の入力に対応
+- 統計有意差ブラケット（Welch's t検定・Mann-Whitney U検定）を自動計算し、図上に直接描画する
+- Compose モードで複数図を1枚に合成し、PNG / SVG / PDF / EPS で出力できる
+- バックエンドは Python（Vercel Functions）+ matplotlib / seaborn。画像OCRは Vision AI（Claude / GPT-4o / Gemini）と Tesseract.js の両方に対応
+
 ### システム全体
 
 ```mermaid
@@ -61,7 +69,7 @@ flowchart TD
     classDef proc  fill:#10B981,color:#fff,stroke:#059669
     classDef ai    fill:#F59E0B,color:#fff,stroke:#D97706
     classDef local fill:#6B7280,color:#fff,stroke:#4B5563
-    classDef edit  fill:#3B82F6,color:#fff,stroke:#2563EB
+    classDef edit  fill:#60A5FA,color:#fff,stroke:#2563EB
 
     UP([画像アップロード]):::ui
     PRE["Canvas API 前処理<br/>リサイズ・コントラスト"]:::proc
