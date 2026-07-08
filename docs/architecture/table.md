@@ -13,7 +13,7 @@
 ### システム全体
 
 ```mermaid
-%%{init: {'flowchart': {'nodeSpacing': 30, 'rankSpacing': 22}}}%%
+%%{init: {'flowchart': {'nodeSpacing': 30, 'rankSpacing': 60}}}%%
 flowchart TD
     classDef input fill:#6C63FF,color:#fff,stroke:#4a44cc
     classDef process fill:#10B981,color:#fff,stroke:#059669
@@ -41,7 +41,7 @@ flowchart TD
     M(["LaTeX Output<br/>現在の表 / 全表"]):::output
 
     A & B --> E --> F
-    AI -->|"parseInput()を再利用"| F
+    AI ---->|"parseInput()を再利用"| F
     F --> G
     C & D --> G
     G --> H
