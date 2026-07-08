@@ -28,7 +28,7 @@ flowchart TD
     U(["URL 入力"]):::input
 
     subgraph RESOLVE["DOI 解決（URL から DOI を特定）"]
-        direction TB
+        direction LR
         RX["URL 正規表現<br/>doi.org / ACM / Springer"]:::api
         META[HTML メタタグ]:::api
         PROXY["/api/resolve-citation<br/>サーバーサイド解決"]:::api
@@ -38,7 +38,7 @@ flowchart TD
     CR[Crossref REST API]:::api
 
     subgraph PROC["変換・整形"]
-        direction TB
+        direction LR
         CV["変換エンジン<br/>txt⇄bib · bib→bib · Cleanup"]:::parse
         SF["Citation Style Formatter<br/>9スタイル<br/>IEEE / APA / ACM / Nature<br/>Springer / MLA / Chicago / Harvard / Pandoc"]:::format
         CV -->|"BibTeX→TXTかつスタイル指定時"| SF

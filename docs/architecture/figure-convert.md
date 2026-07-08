@@ -26,6 +26,7 @@ flowchart TD
     end
 
     subgraph HOOK["useConversion フック"]
+        direction LR
         DET["detectInputFormat<br/>MIME / 拡張子判定"]:::conv
         STATE["FigureFileItem[]<br/>pending→converting→done/error"]:::conv
         PAR["Promise.all<br/>並列変換（バッチ）"]:::conv
@@ -38,13 +39,16 @@ flowchart TD
         P2["svgToPdfVector<br/>jsPDF + svg2pdf.js"]:::conv
         E1["imageToEps<br/>ASCIIHex エンコード"]:::conv
         E2["svgToEps<br/>Canvas 2x ラスタライズ"]:::conv
+        P1 ~~~ P2 ~~~ E1 ~~~ E2
     end
 
     subgraph OUT["出力・活用"]
+        direction LR
         PDF([PDF]):::out
         EPS([EPS]):::out
         LTX(["LaTeX 図表引用コード"]):::out
         DL(["ダウンロード<br/>個別 / ZIP一括（まとめて）"]):::out
+        PDF ~~~ EPS ~~~ LTX ~~~ DL
     end
 
     PNG --> DET
