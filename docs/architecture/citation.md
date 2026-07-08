@@ -22,7 +22,7 @@ flowchart TD
     classDef out    fill:#3B82F6,color:#fff,stroke:#2563EB
     classDef store  fill:#8B5CF6,color:#fff,stroke:#6D28D9
 
-    subgraph INPUTS[" "]
+    subgraph INPUTS["入力"]
         direction LR
         U(["URL 入力"]):::input
         D(["DOI 入力"]):::input
@@ -30,7 +30,6 @@ flowchart TD
         AI(["AI解析 入力<br/>テキスト・ファイル"]):::input
         U ~~~ D ~~~ T ~~~ AI
     end
-    style INPUTS fill:transparent,stroke:transparent
 
     subgraph RESOLVE["DOI 解決"]
         direction LR
@@ -55,7 +54,9 @@ flowchart TD
         OP --> DL
     end
 
-    LIB[("BibTeX Library<br/>IndexedDB")]:::store
+    subgraph STORE["永続化"]
+        LIB[("BibTeX Library<br/>IndexedDB")]:::store
+    end
 
     U --> RX
     D --> CR
