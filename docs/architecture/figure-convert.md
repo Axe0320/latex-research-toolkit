@@ -25,21 +25,19 @@ flowchart TD
         CHARTIN(["Chart から送信"]):::input
     end
 
-    subgraph HOOK["useConversion フック"]
-        direction LR
+    subgraph PROCESS["useConversion フック・変換エンジン"]
         DET["detectInputFormat<br/>MIME / 拡張子判定"]:::conv
         STATE["FigureFileItem[]<br/>pending→converting→done/error"]:::conv
         PAR["Promise.all<br/>並列変換（バッチ）"]:::conv
         DET --> STATE --> PAR
-    end
-
-    subgraph CONV["変換エンジン"]
-        direction LR
         P1["imageToPdf"]:::conv
         P2["svgToPdfVector<br/>jsPDF + svg2pdf.js"]:::conv
         E1["imageToEps<br/>ASCIIHex エンコード"]:::conv
         E2["svgToEps<br/>Canvas 2x ラスタライズ"]:::conv
-        P1 ~~~ P2 ~~~ E1 ~~~ E2
+        PAR --> P1
+        PAR --> P2
+        PAR --> E1
+        PAR --> E2
     end
 
     subgraph OUT["出力・活用"]
@@ -54,10 +52,6 @@ flowchart TD
     PNG --> DET
     SVG --> DET
     CHARTIN --> DET
-    PAR --> P1
-    PAR --> P2
-    PAR --> E1
-    PAR --> E2
     P1 --> PDF
     P2 --> PDF
     E1 --> EPS

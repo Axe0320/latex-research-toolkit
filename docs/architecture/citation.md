@@ -27,7 +27,7 @@ flowchart TD
     D(["DOI 入力"]):::input
     U(["URL 入力"]):::input
 
-    subgraph RESOLVE["DOI 解決（URL から DOI を特定）"]
+    subgraph RESOLVE["DOI 解決"]
         direction LR
         RX["URL 正規表現<br/>doi.org / ACM / Springer"]:::api
         META[HTML メタタグ]:::api
@@ -67,6 +67,8 @@ flowchart TD
     CV -->|"+ Add to Library"| LIB
     LIB -->|"Export Paper Assets"| DL
 ```
+
+「DOI 解決」は、URL 入力から DOI を特定するステップ（DOI を直接入力した場合はこのステップを経由せず Crossref REST API に直行する）。
 
 ### 変換エンジン詳細
 
