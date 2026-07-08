@@ -433,6 +433,11 @@ export default function ChartModule() {
   } = useFigureStore()
 
   const [appMode, setAppMode]           = useState<AppMode>('edit')
+  // Narrow viewports only: the left (data/params) and right (preview) panels
+  // don't fit side by side, so below the `md` breakpoint only one is shown at
+  // a time via this tab. Unused at `md:` and above, where both panels render
+  // in their normal two-column layout regardless of this value.
+  const [mobileView, setMobileView]     = useState<'input' | 'preview'>('preview')
   const [openData, setOpenData]         = useState(true)
   const [openParams, setOpenParams]     = useState(true)
   const [previews, setPreviews]         = useState<Record<string, string>>({})
@@ -896,10 +901,29 @@ export default function ChartModule() {
         </nav>
       )}
 
-      <main className="flex-1 flex overflow-hidden">
+      {/* スマホ幅（<md）のみ表示。左右パネルが並ばないため、代わりにどちらか
+          一方をこのタブで切り替える。md:以上ではこのタブ自体を表示せず、
+          両パネルとも常に表示する通常の2カラムレイアウトに戻る。 */}
+      <div className="flex md:hidden border-b border-gray-200 bg-white shrink-0">
+        {(['input', 'preview'] as const).map((v) => (
+          <button
+            key={v}
+            onClick={() => setMobileView(v)}
+            className="flex-1 py-2.5 text-sm font-bold transition-colors"
+            style={{
+              color: mobileView === v ? '#6C63FF' : '#6B7280',
+              borderBottom: mobileView === v ? '2px solid #6C63FF' : '2px solid transparent',
+            }}
+          >
+            {v === 'input' ? (appMode === 'edit' ? 'データ入力' : '構成設定') : 'プレビュー'}
+          </button>
+        ))}
+      </div>
+
+      <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* 左パネル */}
         <div
-          className="w-80 flex-shrink-0 bg-white flex flex-col"
+          className={`w-full md:w-80 flex-shrink-0 bg-white flex-col ${mobileView === 'input' ? 'flex' : 'hidden'} md:flex`}
           style={{ borderRight: '1px solid #E5E7EB', boxShadow: '2px 0 8px rgba(0,0,0,.04)', overflow: 'hidden' }}
         >
           {appMode === 'edit' ? (
@@ -1061,7 +1085,7 @@ export default function ChartModule() {
         </div>
 
         {/* 右パネル */}
-        <div className="flex-1 p-6 flex flex-col overflow-auto">
+        <div className={`flex-1 p-6 flex-col overflow-auto ${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex`}>
           {appMode === 'edit' ? (
             <div style={{ maxWidth: 760, width: '100%', margin: '0 auto' }}>
               <FigurePreview
